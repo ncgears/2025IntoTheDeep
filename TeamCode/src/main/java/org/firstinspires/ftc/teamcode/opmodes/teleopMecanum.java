@@ -7,15 +7,22 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 //import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import com.sfdev.assembly.state.StateMachine;
+import com.sfdev.assembly.state.StateMachineBuilder;
+
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.hardware.hwMecanumFtclib;
 import org.firstinspires.ftc.teamcode.pidcontrollers.pidTurnControllerFtclib;
 import org.firstinspires.ftc.teamcode.pidcontrollers.pidElevatorController;
 import org.firstinspires.ftc.teamcode.pidcontrollers.pidTiltController;
+import org.firstinspires.ftc.teamcode.StateMachines;
 
 @TeleOp(name="Mecanum Drive", group="JRB")
 public class teleopMecanum extends OpMode {
     hwMecanumFtclib robot = new hwMecanumFtclib(this);
+    StateMachine specimenMachine, sampleMachine, climbMachine;
+    StateMachine globalMachine;
+
     ElapsedTime runtime = new ElapsedTime();
     ElapsedTime elapsed = new ElapsedTime();
     Constants.Manipulator.Positions m_manip_pos = Constants.Manipulator.Positions.START;
@@ -40,9 +47,63 @@ public class teleopMecanum extends OpMode {
     boolean d_a, d_b, d_x, d_y, d_lb, d_lt = false; //for debouncing driver button presses
     boolean o_rb, o_lb, o_up, o_dn, o_lt, o_rt = false; //for debouncing operator button presses
 
+    public enum States {
+        INIT,
+        SPECIMEN_PICKUP,
+        SAMPLE_PICKUP,
+        CLIMB,
+        IDLE
+    }
+
     @Override
     public void init() {
         robot.init(hardwareMap);
+
+        /**
+         * The globalMachine is a state machine that handles creating child state machines for
+         * semi-automated tasks.  The IDLE state waits for conditions and starts other state
+         * machines as needed.
+         **/
+        specimenMachine = StateMachines.getSpecimenPickupMachine(robot);
+        sampleMachine = StateMachines.getSamplePickupMachine(robot);
+        climbMachine = StateMachines.getClimbMachine(robot);
+        globalMachine = new StateMachineBuilder()
+            /** INIT prepares the manipulator as needed */
+            .state(States.INIT)
+            .transition( () -> (true), States.IDLE)
+            /** IDLE waits for transition conditions */
+            .state(States.IDLE)
+            .transition(() -> robot.operOp.getButton(GamepadKeys.Button.X), States.SPECIMEN_PICKUP)
+            .transition(() -> robot.operOp.getButton(GamepadKeys.Button.B), States.SAMPLE_PICKUP)
+            /** SAMPLE_PICKUP starts the sample state machine */
+            .state(States.SAMPLE_PICKUP)
+            .onEnter(sampleMachine::start)
+            .loop(sampleMachine::update)
+            .onExit( () -> {
+                sampleMachine.reset();
+                sampleMachine.stop();
+            })
+            .transition( () -> sampleMachine.getState() == StateMachines.SamplePickup.DONE, States.IDLE)
+            /** SPECIMEN_PICKUP starts the specimen state machine */
+            .state(States.SPECIMEN_PICKUP)
+            .onEnter(specimenMachine::start)
+            .loop(specimenMachine::update)
+            .onExit( () -> {
+                specimenMachine.reset();
+                specimenMachine.stop();
+            })
+            .transition( () -> specimenMachine.getState() == StateMachines.SpecimenPickup.DONE, States.IDLE)
+            /** CLIMB starts the climbing state machine */
+            .state(States.CLIMB)
+            .onEnter(climbMachine::start)
+            .loop(climbMachine::update)
+            .onExit( () -> {
+                climbMachine.reset();
+                climbMachine.stop();
+            })
+            .transition( () -> climbMachine.getState() == StateMachines.Climb.DONE, States.IDLE)
+            /** Build the state machine */
+            .build();
     }
 
     // repeatedly until driver presses play
@@ -71,12 +132,14 @@ public class teleopMecanum extends OpMode {
     @Override
     public void start() {
         runtime.reset();
+        globalMachine.start();
         m_turn_multiplier = (robot.alliance == Constants.Alliance.RED) ? -1.0 : 1.0;
         robot.setIntakeDirection(Constants.Intake.Directions.STOP);
     }
 
     @Override
     public void loop() {
+        globalMachine.update();
 //        drive_fwd = (pid_turning) ? 0.0 : robot.driverOp.getLeftY(); //if pid turning, no throttle
 //        drive_strafe = (pid_turning) ? 0.0 : robot.driverOp.getLeftX(); //if pid turning, no strafing
 //        drive_turn = (pid_turning) ? turnpid.update(robot.getRobotYaw()) : 0.0;
@@ -399,6 +462,9 @@ public class teleopMecanum extends OpMode {
         telemetry.addData("Obstacle Distance", "%.2f Inches", robot.getDistance());
         telemetry.addData("Intake Direction", robot.getIntakeDirection().toString());
         telemetry.addData("Manipulator Position", m_manip_pos.toString());
+        telemetry.addData("Robot State", globalMachine.getStateString());
+        telemetry.addData("Specimen Pickup State", specimenMachine.getState().toString());
+        telemetry.addData("Sample Pickup State", sampleMachine.getState().toString());
         telemetry.addData("Tilt", "lim=%s, tgt=%.0f, pos=%d, pwr=%.2f", robot.getTiltLimitString(), tiltpid.getTarget(), robot.getTiltPosition(), robot.getTiltPower());
         telemetry.addData("Elev", "lim=%s, tgt=%.0f, pos=%d, pwr=%.2f", robot.getElevatorLimitString(), elevpid.getTarget(), robot.getElevatorPosition(), robot.getElevatorPower());
         if(idle) { //items that are only in idle
