@@ -15,7 +15,8 @@ dependencies {
     implementation 'org.firstinspires.ftc:FtcCommon:10.1.0'
     implementation 'org.firstinspires.ftc:Vision:10.1.0'
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'com.github.StateFactory-Dev:StateFactory:0.3.6'
+    implementation 'com.github.StateFactory-Dev:StateFactory:0.3.6' //state-factory - https://state-factory.gitbook.io/state-factory/installation
+    implementation 'org.ftclib.ftclib:core:2.1.1' // ftclib - https://docs.ftclib.org/ftclib/installation
     implementation 'com.acmerobotics.dashboard:dashboard:0.4.12'
 }
 
