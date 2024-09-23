@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 //import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.apache.commons.math3.analysis.function.Constant;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.hardware.hwMecanumFtclib;
 import org.firstinspires.ftc.teamcode.pidcontrollers.pidTurnControllerFtclib;
@@ -22,7 +21,7 @@ public class teleopMecanum extends OpMode {
     Constants.Manipulator.Positions m_manip_pos = Constants.Manipulator.Positions.START;
     Constants.Manipulator.Positions m_manip_prev_pos = Constants.Manipulator.Positions.START;
     boolean m_manip_momentary = false;
-    Constants.Manipulator.Positions m_last_manip_pos = Constants.Manipulator.Positions.SCORE_ROW1;
+    Constants.Manipulator.Positions m_last_manip_pos = Constants.Manipulator.Positions.SPECIMEN_HIGH;
     boolean m_manip_manual = false;
     String m_last_command = Constants.Commands.NONE.toString();
     double m_last_command_time = 0.0;
@@ -73,7 +72,7 @@ public class teleopMecanum extends OpMode {
     public void start() {
         runtime.reset();
         m_turn_multiplier = (robot.alliance == Constants.Alliance.RED) ? -1.0 : 1.0;
-        robot.setPixelPosition(Constants.PixelDropper.Positions.UP);
+        robot.setIntakeDirection(Constants.Intake.Directions.STOP);
     }
 
     @Override
@@ -209,72 +208,36 @@ public class teleopMecanum extends OpMode {
             telemCommand("RETURN");
         } else if (robot.operOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) >= 0.5 && !m_manip_momentary) { //press scoring button
             switch (m_manip_pos) {
-                case SCORE_ROW1:
-                    m_manip_prev_pos = m_manip_pos;
-                    m_manip_momentary = true;
-                    m_manip_pos = Constants.Manipulator.Positions.SCORE_DROP1;
-                    telemCommand("SCORING POSITION 1");
-                    break;
-                case SCORE_ROW2:
-                    m_manip_prev_pos = m_manip_pos;
-                    m_manip_momentary = true;
-                    m_manip_pos = Constants.Manipulator.Positions.SCORE_DROP2;
-                    telemCommand("SCORING POSITION 2");
-                    break;
-                case SCORE_ROW3:
-                    m_manip_prev_pos = m_manip_pos;
-                    m_manip_momentary = true;
-                    m_manip_pos = Constants.Manipulator.Positions.SCORE_DROP3;
-                    telemCommand("SCORING POSITION 3");
-                    break;
-                case TRANSPORT:
-                    m_manip_prev_pos = m_manip_pos;
-                    m_manip_momentary = true;
-                    m_manip_pos = Constants.Manipulator.Positions.FLOOR_DESTACK;
-                    telemCommand("DESTACK");
-                    break;
                 default:
             }
-        } else if (o_lt && robot.operOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) < 0.5) { //release scoring button
-                o_lt = false;
-        } else if (!o_lt && robot.operOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) >= 0.5) { //press scoring button
-                o_lt = true;
-                m_manip_pos = Constants.Manipulator.Positions.FLOOR_FAR;
-                telemCommand("FLOOR FAR");
         } else if (!o_rb && robot.operOp.getButton(GamepadKeys.Button.RIGHT_BUMPER)) { //position up
             o_rb = true;
             switch (m_manip_pos) {
-                case SCORE_ROW1:
-                    m_manip_pos = Constants.Manipulator.Positions.SCORE_ROW2;
+                case SAMPLE_LOW:
+                    m_manip_pos = Constants.Manipulator.Positions.SAMPLE_HIGH;
                     m_last_manip_pos = m_manip_pos;
-                    telemCommand("SCORING POSITION 2");
+                    telemCommand("SAMPLE HIGH");
                     break;
-                case SCORE_ROW2:
-                    m_manip_pos = Constants.Manipulator.Positions.SCORE_ROW3;
+                case SPECIMEN_LOW:
+                    m_manip_pos = Constants.Manipulator.Positions.SPECIMEN_HIGH;
                     m_last_manip_pos = m_manip_pos;
-                    telemCommand("SCORING POSITION 3");
+                    telemCommand("SPECIMEN HIGH");
                     break;
-                case SCORE_ROW3:
-//                        telemCommand("NOTHING");
-//                        break;
                 default:
 //                        telemCommand("NOTHING");
             }
         } else if (!o_lb && robot.operOp.getButton(GamepadKeys.Button.LEFT_BUMPER)) { //position down
             o_lb = true;
             switch (m_manip_pos) {
-                case SCORE_ROW3:
-                    m_manip_pos = Constants.Manipulator.Positions.SCORE_ROW2;
+                case SAMPLE_HIGH:
+                    m_manip_pos = Constants.Manipulator.Positions.SAMPLE_LOW;
                     m_last_manip_pos = m_manip_pos;
-                    telemCommand("SCORING POSITION 2");
+                    telemCommand("SAMPLE LOW");
                     break;
-                case SCORE_ROW2:
-                    m_manip_pos = Constants.Manipulator.Positions.SCORE_ROW1;
+                case SPECIMEN_HIGH:
+                    m_manip_pos = Constants.Manipulator.Positions.SPECIMEN_LOW;
                     m_last_manip_pos = m_manip_pos;
-                    telemCommand("SCORING POSITION 1");
-                    break;
-                case SCORE_ROW1:
-//                    telemCommand("NOTHING");
+                    telemCommand("SPECIMEN LOW");
                     break;
                 default:
 //                    telemCommand("NOTHING");
@@ -286,11 +249,11 @@ public class teleopMecanum extends OpMode {
             m_manip_pos = Constants.Manipulator.Positions.TRANSPORT;
             telemCommand("TRANSPORT POSITION");
         } else if (robot.operOp.getButton(GamepadKeys.Button.A)) { //floor pickup
-            m_manip_pos = Constants.Manipulator.Positions.FLOOR_CLOSE;
+            m_manip_pos = Constants.Manipulator.Positions.SAMPLE_PICKUP;
             telemCommand("FLOOR PICKUP");
         } else if (robot.operOp.getButton(GamepadKeys.Button.START)) {
-            robot.setDronePosition(Constants.DroneLauncher.Positions.LAUNCH);
-            telemCommand("LAUNCH DRONE");
+            m_manip_pos = Constants.Manipulator.Positions.START;
+            telemCommand("STARTING CONFIG");
         } else if (o_rb && !robot.operOp.getButton(GamepadKeys.Button.RIGHT_BUMPER)) { //released the button
             o_rb = false;
         } else if (o_lb && !robot.operOp.getButton(GamepadKeys.Button.LEFT_BUMPER)) { //released the button
@@ -434,8 +397,7 @@ public class teleopMecanum extends OpMode {
         telemetry.addData("Heading Lock", (robot.driveStraight) ? "YES" : "NO");
         telemetry.addData("Robot Heading", "%.2f", robot.getRobotYaw());
         telemetry.addData("Obstacle Distance", "%.2f Inches", robot.getDistance());
-        telemetry.addData("Pixel Dropper", robot.getPixelPosition().toString());
-        telemetry.addData("Drone Launcher", robot.getDronePosition().toString());
+        telemetry.addData("Intake Direction", robot.getIntakeDirection().toString());
         telemetry.addData("Manipulator Position", m_manip_pos.toString());
         telemetry.addData("Tilt", "lim=%s, tgt=%.0f, pos=%d, pwr=%.2f", robot.getTiltLimitString(), tiltpid.getTarget(), robot.getTiltPosition(), robot.getTiltPower());
         telemetry.addData("Elev", "lim=%s, tgt=%.0f, pos=%d, pwr=%.2f", robot.getElevatorLimitString(), elevpid.getTarget(), robot.getElevatorPosition(), robot.getElevatorPower());

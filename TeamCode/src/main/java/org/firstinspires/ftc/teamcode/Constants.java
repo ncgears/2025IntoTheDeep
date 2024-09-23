@@ -2,9 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 @SuppressWarnings("unused")
 public class Constants {
-    public enum Commands { NONE, ROBOT_RESET, GYRO_RESET, TOGGLE_PIXEL, DETERMINE_TEAM }
+    public enum Commands { NONE, ROBOT_RESET, GYRO_RESET, DETERMINE_TEAM, INTAKE_IN, INTAKE_OUT, INTAKE_STOP}
     public enum Alliance { RED, BLUE, NONE }
-    public enum TSELocation { LEFT, MIDDLE, RIGHT, NONE }
     public static class Global {
         public static double stickDeadbandMin = 0.1; //10%, anything less than this is considered to be 0%
         public static double stickDeadbandMax = 0.95; //95%, anything over this is considered to be 100%
@@ -55,22 +54,14 @@ public class Constants {
         }
     }
 
-    public static class PixelDropper {
-        public enum Positions {
-            DOWN(0.0),
-            UP(20.0);
-            private final double angle;
-            Positions(double angle) { this.angle = angle; }
-            public double getAngle() { return this.angle; }
-        }
-    }
-    public static class DroneLauncher {
-        public enum Positions {
-            ARMED(0.0),
-            LAUNCH(10);
-            private final double angle;
-            Positions(double angle) { this.angle = angle; }
-            public double getAngle() { return this.angle; }
+    public static class Intake {
+        public enum Directions {
+            IN(1.0),
+            OUT(-1.0),
+            STOP(0.0);
+            private final double direction;
+            Directions(double direction) { this.direction = direction; }
+            public double getDirection() { return this.direction; }
         }
     }
 
@@ -89,19 +80,12 @@ public class Constants {
             ZERO(0,0,-1.0),
             START(30,0.0,-1.0),
             TRANSPORT(1750,0.0,-1.0),
-            FLOOR_CLOSE(50,0.0,-1.0),
-            FLOOR_FAR(275,3.0,-1.0),
-            FLOOR_DESTACK(525,3.0,-1.0),
-            SCORE_AUTO(2925,4.25,0.0),
-            SCORE_AUTODROP(2400,4.5,0.0),
-            SCORE_ROW1(2925,10,0.0),
-            SCORE_DROP1(2400,10,0.0),
-            SCORE_ROW2(2925,13,0.0),
-            SCORE_DROP2(2400,13,0.0),
-            SCORE_ROW3(2925,16,0.0),
-            SCORE_DROP3(2400,16,0.0),
-            //SCORE_ROWX(2925,12,0.0),
-            //SCORE_DROPX(1950,12,0.0),
+            SPECIMEN_LOW(50,0.0,-1.0),
+            SPECIMEN_HIGH(275,3.0,-1.0),
+            SPECIMEN_PICKUP(525,3.0,-1.0),
+            SAMPLE_LOW(2925,4.25,0.0),
+            SAMPLE_HIGH(2400,4.5,0.0),
+            SAMPLE_PICKUP(2925,10,0.0),
             CLIMB_READY(3500,7.0,-1.0),
             CLIMB_UP(3500,22,-1.0),
             CLIMB_LIFT(3500,1.5,-1.0),
