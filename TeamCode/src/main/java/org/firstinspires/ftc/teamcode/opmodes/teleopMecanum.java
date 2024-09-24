@@ -134,7 +134,7 @@ public class teleopMecanum extends OpMode {
         runtime.reset();
         globalMachine.start();
         m_turn_multiplier = (robot.alliance == Constants.Alliance.RED) ? -1.0 : 1.0;
-        robot.setIntakeDirection(Constants.Intake.Directions.STOP);
+//        robot.setIntakeDirection(Constants.Intake.Directions.STOP);
     }
 
     @Override
@@ -370,8 +370,8 @@ public class teleopMecanum extends OpMode {
 
         // Update the manipulator - these should be called every loop to make the manipulator move to target position
         if(!m_manip_manual) {
-            moveElevator();
-            moveTilt();
+//            moveElevator();
+//            moveTilt();
         }
 
         // command name updates for telemetry
@@ -460,13 +460,13 @@ public class teleopMecanum extends OpMode {
         telemetry.addData("Heading Lock", (robot.driveStraight) ? "YES" : "NO");
         telemetry.addData("Robot Heading", "%.2f", robot.getRobotYaw());
         telemetry.addData("Obstacle Distance", "%.2f Inches", robot.getDistance());
-        telemetry.addData("Intake Direction", robot.getIntakeDirection().toString());
+//        telemetry.addData("Intake Direction", robot.getIntakeDirection().toString());
         telemetry.addData("Manipulator Position", m_manip_pos.toString());
-        telemetry.addData("Robot State", globalMachine.getStateString());
+        telemetry.addData("Robot State", globalMachine.getState().toString());
         telemetry.addData("Specimen Pickup State", specimenMachine.getState().toString());
         telemetry.addData("Sample Pickup State", sampleMachine.getState().toString());
-        telemetry.addData("Tilt", "lim=%s, tgt=%.0f, pos=%d, pwr=%.2f", robot.getTiltLimitString(), tiltpid.getTarget(), robot.getTiltPosition(), robot.getTiltPower());
-        telemetry.addData("Elev", "lim=%s, tgt=%.0f, pos=%d, pwr=%.2f", robot.getElevatorLimitString(), elevpid.getTarget(), robot.getElevatorPosition(), robot.getElevatorPower());
+//        telemetry.addData("Tilt", "lim=%s, tgt=%.0f, pos=%d, pwr=%.2f", robot.getTiltLimitString(), tiltpid.getTarget(), robot.getTiltPosition(), robot.getTiltPower());
+//        telemetry.addData("Elev", "lim=%s, tgt=%.0f, pos=%d, pwr=%.2f", robot.getElevatorLimitString(), elevpid.getTarget(), robot.getElevatorPosition(), robot.getElevatorPower());
         if(idle) { //items that are only in idle
         } else {
             telemetry.addData("OpMode", "Run Time: %.2f", runtime.seconds());
