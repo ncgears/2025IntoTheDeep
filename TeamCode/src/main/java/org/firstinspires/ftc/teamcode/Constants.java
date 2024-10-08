@@ -77,19 +77,20 @@ public class Constants {
             //tilt = (double) position of the tilt, in encoder counts, from the low limit switch reference
             //elevator = (double) length of the elevator, in inches
             //distance = (double) robot distance from backstage (-1 if not used)
-            ZERO(0,0,-1.0),
-            START(30,0.0,-1.0),
-            TRANSPORT(1750,0.0,-1.0),
-            SPECIMEN_LOW(50,0.0,-1.0),
-            SPECIMEN_HIGH(275,3.0,-1.0),
-            SPECIMEN_PICKUP(525,3.0,-1.0),
-            SAMPLE_LOW(2925,4.25,0.0),
-            SAMPLE_HIGH(2400,4.5,0.0),
-            SAMPLE_PICKUP(2925,10,0.0),
+            ZERO(0,0.0,-1.0),
+            START(0,0.0,-1.0),
+            TRANSPORT(725,0.0,-1.0),
+            SPECIMEN_LOW(1750,0.0,-1.0),
+            SPECIMEN_HIGH(2400,3.0,-1.0),
+            SPECIMEN_PICKUP(1000,3.0,-1.0),
+            SAMPLE_LOW(1950,4.25,0.0),
+            SAMPLE_HIGH(2600,4.5,0.0),
+            SAMPLE_PICKUP(0,10,0.0),
             CLIMB_READY(3500,7.0,-1.0),
             CLIMB_UP(3500,22,-1.0),
             CLIMB_LIFT(3500,1.5,-1.0),
-            CLIMB_VERT(150, 1.5, -1.0);
+            CLIMB_VERT(150, 1.5, -1.0),
+            LIMIT(4000,0,-1.0);
             final double tilt, elevator, distance;
             Positions(double tilt, double elevator, double distance) {
                 this.tilt = tilt;
