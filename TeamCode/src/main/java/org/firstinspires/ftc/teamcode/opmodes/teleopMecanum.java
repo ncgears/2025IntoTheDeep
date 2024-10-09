@@ -110,7 +110,7 @@ public class teleopMecanum extends OpMode {
     // repeatedly until driver presses play
     @Override
     public void init_loop() {
-        if(m_last_command == "NONE" || robot.alliance == Constants.Alliance.NONE) telemCommand("DETERMINE TEAM"); //determine team and store it
+        if(m_last_command.equals("NONE") || robot.alliance == Constants.Alliance.NONE) telemCommand("DETERMINE TEAM"); //determine team and store it
         // always listen for gyro reset button
         if(robot.driverOp.getButton(GamepadKeys.Button.BACK) && runtime.seconds() - m_last_command_time > 0.5) {
             robot.imu.resetYaw();
@@ -118,7 +118,7 @@ public class teleopMecanum extends OpMode {
             telemCommand("RESET GYRO");
         }
         // command name updates for telemetry
-        if(m_last_command != "NONE" && runtime.seconds() - m_last_command_time > 2) { //reset the last command after 2 seconds
+        if(!m_last_command.equals("NONE") && runtime.seconds() - m_last_command_time > 2) { //reset the last command after 2 seconds
             telemCommand("NONE");
         }
         // Update all telemetry data
@@ -196,6 +196,7 @@ public class teleopMecanum extends OpMode {
                 wait(3000);
                 moveTilt();
             } catch (Exception e) {
+                //do nothing
             } finally {
                 m_manip_manual = false;
             }
@@ -266,10 +267,12 @@ public class teleopMecanum extends OpMode {
             m_manip_momentary = false;
             m_manip_pos = m_manip_prev_pos;
             telemCommand("RETURN");
-        } else if (robot.operOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) >= 0.5 && !m_manip_momentary) { //press scoring button
-            switch (m_manip_pos) {
-                default:
-            }
+//        } else if (robot.operOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) >= 0.5 && !m_manip_momentary) { //press scoring button
+//            switch (m_manip_pos) {
+//                case START:
+//                case TRANSPORT:
+//                default:
+//            }
         } else if (!o_rb && robot.operOp.getButton(GamepadKeys.Button.RIGHT_BUMPER)) { //position up
             o_rb = true;
             switch (m_manip_pos) {
@@ -354,7 +357,7 @@ public class teleopMecanum extends OpMode {
         }
 
         // command name updates for telemetry
-        if(m_last_command != "NONE" && runtime.seconds() - m_last_command_time > 2) { //reset the last command after 2 seconds
+        if(!m_last_command.equals("NONE") && runtime.seconds() - m_last_command_time > 2) { //reset the last command after 2 seconds
             telemCommand("NONE");
         }
         // Update all telemetry data
@@ -434,9 +437,13 @@ public class teleopMecanum extends OpMode {
         robot.setElevatorPower(power);
     }
 
+    private void noop() {
+        //nothing happens here
+    }
+
     private void telem(boolean idle) {
         telemetry.addData("Alliance", robot.alliance.toString());
-        telemetry.addData("Last Command", m_last_command.toString());
+        telemetry.addData("Last Command", m_last_command);
         telemetry.addData("Robot Drive", "%s Centric", (robot.fieldCentric) ? "Field" : "Robot");
         telemetry.addData("Heading Lock", (robot.driveStraight) ? "YES" : "NO");
         telemetry.addData("Robot Heading", "%.2f", robot.getRobotYaw());
@@ -448,7 +455,9 @@ public class teleopMecanum extends OpMode {
         telemetry.addData("Sample Pickup State", sampleMachine.getState().toString());
         if(!Constants.Manipulator.tiltController.disabled) telemetry.addData("Tilt", "lim=%s, tgt=%.0f, pos=%d, pwr=%.2f", robot.getTiltLimitString(), tiltpid.getTarget(), robot.getTiltPosition(), robot.getTiltPower());
         if(!Constants.Manipulator.elevatorController.disabled) telemetry.addData("Elev", "lim=%s, tgt=%.0f, pos=%d, pwr=%.2f", robot.getElevatorLimitString(), elevpid.getTarget(), robot.getElevatorPosition(), robot.getElevatorPower());
-        if(idle) { //items that are only in idle
+        if(idle) {
+            //items that are only in idle
+            noop();
         } else {
             telemetry.addData("OpMode", "Run Time: %.2f", runtime.seconds());
             telemetry.addData("Robot Drive", "fwd=%.2f, str=%.2f, turn=%.2f", drive_fwd, drive_strafe, drive_turn);

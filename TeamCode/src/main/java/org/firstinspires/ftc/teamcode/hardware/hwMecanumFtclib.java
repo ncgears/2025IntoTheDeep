@@ -90,7 +90,7 @@ public class hwMecanumFtclib {
     public DigitalChannel m_tilt_lim_low, m_tilt_lim_high, m_elev_lim_low, m_elev_lim_high = null;
 
     // Intake related stuff
-    public Constants.Intake.Directions m_intake_direction = null;
+    public Constants.Intake.Directions m_intake_direction = Constants.Intake.Directions.STOP;
 
     // Distance sensor
     public SensorRevTOFDistance m_distance = null;
