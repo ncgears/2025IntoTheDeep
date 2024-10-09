@@ -17,8 +17,8 @@ public class Constants {
         public static boolean useFieldCentric = true; //try to use FC if gyro has value
         public static boolean useDriveStraight = false; //use DriveStraight correction
         public static class woahNelly {
-            public static boolean enabled = false; // use woahNelly system to slow down at backstage
-            public static double distance = 10.0;//Inches from obstacle to adjust throttle when aimed at backstage
+            public static boolean enabled = false; // use woahNelly system to slow down at obstacle
+            public static double distance = 10.0;//Inches from obstacle to adjust throttle when aimed at obstacle
             public static double multiplier = 0.4;//Speed reduction
             public static double direction = 90; //direction for woahNelly
             public static double directionThreshold = 10.0; //degrees within direction for throttling
@@ -63,6 +63,7 @@ public class Constants {
             Directions(double direction) { this.direction = direction; }
             public double getDirection() { return this.direction; }
         }
+        public static boolean disabled = false; //true to disable intake
     }
 
     /**
@@ -102,6 +103,7 @@ public class Constants {
             public double getDistance() { return this.distance; }
         }
         public static class tiltController {
+            public static boolean disabled = false; //true to disable tilt controller
             public static double offsetStepSize = 90; //amount to change offset per request
             public static double homingSpeed = 0.1; //speed for homing to limit
             public static double targetThresholdTicks = 30; //how many encoder ticks is close enough
@@ -117,6 +119,7 @@ public class Constants {
             }
         }
         public static class elevatorController {
+            public static boolean disabled = true; //true to disable elevator controller
             public static double offsetStepSize = 200; //amount to change offset per request
             public static double homingSpeed = 0.1; //speed for homing to limit
             public static double ticksPerRev = 28;

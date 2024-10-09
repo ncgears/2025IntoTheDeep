@@ -49,6 +49,7 @@ public class teleopMecanum extends OpMode {
 
     public enum States {
         INIT,
+        TRANSPORT,
         SPECIMEN_PICKUP,
         SAMPLE_PICKUP,
         CLIMB,
@@ -59,23 +60,23 @@ public class teleopMecanum extends OpMode {
     public void init() {
         robot.init(hardwareMap);
 
-        /**
+        /*
          * The globalMachine is a state machine that handles creating child state machines for
          * semi-automated tasks.  The IDLE state waits for conditions and starts other state
          * machines as needed.
-         **/
+         */
         specimenMachine = StateMachines.getSpecimenPickupMachine(robot);
         sampleMachine = StateMachines.getSamplePickupMachine(robot);
         climbMachine = StateMachines.getClimbMachine(robot);
         globalMachine = new StateMachineBuilder()
-            /** INIT prepares the manipulator as needed */
+            /* INIT prepares the manipulator as needed */
             .state(States.INIT)
             .transition( () -> (true), States.IDLE)
-            /** IDLE waits for transition conditions */
+            /* IDLE waits for transition conditions, defines buttons */
             .state(States.IDLE)
             .transition(() -> robot.operOp.getButton(GamepadKeys.Button.X), States.SPECIMEN_PICKUP)
             .transition(() -> robot.operOp.getButton(GamepadKeys.Button.B), States.SAMPLE_PICKUP)
-            /** SAMPLE_PICKUP starts the sample state machine */
+            /* SAMPLE_PICKUP starts the sample state machine */
             .state(States.SAMPLE_PICKUP)
             .onEnter(sampleMachine::start)
             .loop(sampleMachine::update)
@@ -84,7 +85,7 @@ public class teleopMecanum extends OpMode {
                 sampleMachine.stop();
             })
             .transition( () -> sampleMachine.getState() == StateMachines.SamplePickup.DONE, States.IDLE)
-            /** SPECIMEN_PICKUP starts the specimen state machine */
+            /* SPECIMEN_PICKUP starts the specimen state machine */
             .state(States.SPECIMEN_PICKUP)
             .onEnter(specimenMachine::start)
             .loop(specimenMachine::update)
@@ -93,7 +94,7 @@ public class teleopMecanum extends OpMode {
                 specimenMachine.stop();
             })
             .transition( () -> specimenMachine.getState() == StateMachines.SpecimenPickup.DONE, States.IDLE)
-            /** CLIMB starts the climbing state machine */
+            /* CLIMB starts the climbing state machine */
             .state(States.CLIMB)
             .onEnter(climbMachine::start)
             .loop(climbMachine::update)
@@ -102,7 +103,7 @@ public class teleopMecanum extends OpMode {
                 climbMachine.stop();
             })
             .transition( () -> climbMachine.getState() == StateMachines.Climb.DONE, States.IDLE)
-            /** Build the state machine */
+            /* Build the state machine */
             .build();
     }
 
@@ -116,10 +117,6 @@ public class teleopMecanum extends OpMode {
             robot.playAudio("Reset Gyro", 500);
             telemCommand("RESET GYRO");
         }
-//        // Don't do this while waiting for teleop, robot doesnt get reset between auton and teleop
-//        if(runtime.seconds() - m_last_command_time > 2.0) { //reset imu every 2 seconds during init
-//            robot.imu.resetYaw();
-//        }
         // command name updates for telemetry
         if(m_last_command != "NONE" && runtime.seconds() - m_last_command_time > 2) { //reset the last command after 2 seconds
             telemCommand("NONE");
@@ -143,8 +140,8 @@ public class teleopMecanum extends OpMode {
 //        drive_fwd = (pid_turning) ? 0.0 : robot.driverOp.getLeftY(); //if pid turning, no throttle
 //        drive_strafe = (pid_turning) ? 0.0 : robot.driverOp.getLeftX(); //if pid turning, no strafing
 //        drive_turn = (pid_turning) ? turnpid.update(robot.getRobotYaw()) : 0.0;
-        drive_fwd = distanceCorrectedPower(robot.driverOp.getLeftY());
-        drive_strafe = distanceCorrectedPower(robot.driverOp.getLeftX());
+        drive_fwd = distanceCorrectedPower(stickDeadband(robot.driverOp.getLeftY()));
+        drive_strafe = distanceCorrectedPower(stickDeadband(robot.driverOp.getLeftX()));
         drive_turn = stickDeadband(robot.driverOp.getRightX());
         if (drive_turn != 0.0) { //we have requested a turn using the joystick
             pid_turning = false; //disable pid turning
@@ -152,7 +149,7 @@ public class teleopMecanum extends OpMode {
         }
 
         if (robot.driveStraight) {
-            /** useDriveStraight:
+            /* useDriveStraight:
              * If we are not requesting a turn and locked to a heading,
              * lock the current robot heading
              */
@@ -185,7 +182,7 @@ public class teleopMecanum extends OpMode {
             robot.drive.driveFieldCentric(drive_strafe, drive_fwd, drive_turn, robot.getRobotYaw());
         }
 
-        /** Driver Controls */
+        /* Driver Controls */
         // always listen for gyro reset button
         if (robot.driverOp.getButton(GamepadKeys.Button.BACK)) {
             robot.imu.resetYaw();
@@ -262,9 +259,9 @@ public class teleopMecanum extends OpMode {
             m_manip_pos = Constants.Manipulator.Positions.CLIMB_LIFT;
             telemCommand("CLIMB LIFT");
         }
-        /** End Driver Controls */
+        /* End Driver Controls */
 
-        /** Operator Controls */
+        /* Operator Controls */
         if (robot.operOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) < 0.5 && m_manip_momentary) { //release scoring button
             m_manip_momentary = false;
             m_manip_pos = m_manip_prev_pos;
@@ -323,7 +320,7 @@ public class teleopMecanum extends OpMode {
             o_lb = false;
         }
 
-        /** DPAD_UP and DPAD_DOWN handles adjusting the tilt offset */
+        /* DPAD_UP and DPAD_DOWN handles adjusting the tilt offset */
         if (!o_up && robot.operOp.getButton(GamepadKeys.Button.DPAD_UP)) { //tilt offset up
 //            o_up = true;
             tiltpid.increaseOffset();
@@ -336,7 +333,7 @@ public class teleopMecanum extends OpMode {
             o_dn = false;
         }
 
-        /** Left and Right DPAD handles adjusting the elevator offset */
+        /* DPAD_LEFT and DPAD_RIGHT handles adjusting the elevator offset */
         if (!o_rt && robot.operOp.getButton(GamepadKeys.Button.DPAD_RIGHT)) { //elev offset up
             o_rt = true;
             elevpid.increaseOffset();
@@ -348,30 +345,12 @@ public class teleopMecanum extends OpMode {
         } else if (o_rt && !robot.operOp.getButton(GamepadKeys.Button.DPAD_RIGHT)) { //released the button
             o_rt = false;
         }
-
-//        robot.driverOp.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(new InstantCommand(() -> {
-//            switch (m_manip_pos) {
-//                case SCORE_ROW1:
-//                    m_manip_pos = Constants.Manipulator.Positions.SCORE_ROW2;
-//                    telemCommand("SCORING POSITION 2");
-//                    break;
-//                case SCORE_ROW2:
-//                    m_manip_pos = Constants.Manipulator.Positions.SCORE_ROW3;
-//                    telemCommand("SCORING POSITION 3");
-//                    break;
-//                case SCORE_ROW3:
-//                    telemCommand("NOTHING");
-//                    break;
-//                default:
-//                    telemCommand("NOTHING");
-//            }
-//        }));
-        /** End Operator Controls */
+        /* End Operator Controls */
 
         // Update the manipulator - these should be called every loop to make the manipulator move to target position
         if(!m_manip_manual) {
-//            moveElevator();
-//            moveTilt();
+            moveElevator();
+            moveTilt();
         }
 
         // command name updates for telemetry
@@ -406,6 +385,7 @@ public class teleopMecanum extends OpMode {
     }
 
     public void moveTilt() {
+        if(Constants.Manipulator.tiltController.disabled) return;
         if(tilt_low_limit) {
             tiltpid.setTarget(robot.getTiltPosition());
             tilt_low_limit = false;
@@ -448,6 +428,7 @@ public class teleopMecanum extends OpMode {
     }
 
     public void moveElevator() {
+        if(Constants.Manipulator.elevatorController.disabled) return;
         elevpid.setTargetPosition(m_manip_pos);
         double power = elevpid.update(robot.getElevatorPosition());
         robot.setElevatorPower(power);
@@ -460,13 +441,13 @@ public class teleopMecanum extends OpMode {
         telemetry.addData("Heading Lock", (robot.driveStraight) ? "YES" : "NO");
         telemetry.addData("Robot Heading", "%.2f", robot.getRobotYaw());
         telemetry.addData("Obstacle Distance", "%.2f Inches", robot.getDistance());
-//        telemetry.addData("Intake Direction", robot.getIntakeDirection().toString());
+        if(!Constants.Intake.disabled) telemetry.addData("Intake Direction", robot.getIntakeDirection().toString());
         telemetry.addData("Manipulator Position", m_manip_pos.toString());
         telemetry.addData("Robot State", globalMachine.getState().toString());
         telemetry.addData("Specimen Pickup State", specimenMachine.getState().toString());
         telemetry.addData("Sample Pickup State", sampleMachine.getState().toString());
-//        telemetry.addData("Tilt", "lim=%s, tgt=%.0f, pos=%d, pwr=%.2f", robot.getTiltLimitString(), tiltpid.getTarget(), robot.getTiltPosition(), robot.getTiltPower());
-//        telemetry.addData("Elev", "lim=%s, tgt=%.0f, pos=%d, pwr=%.2f", robot.getElevatorLimitString(), elevpid.getTarget(), robot.getElevatorPosition(), robot.getElevatorPower());
+        if(!Constants.Manipulator.tiltController.disabled) telemetry.addData("Tilt", "lim=%s, tgt=%.0f, pos=%d, pwr=%.2f", robot.getTiltLimitString(), tiltpid.getTarget(), robot.getTiltPosition(), robot.getTiltPower());
+        if(!Constants.Manipulator.elevatorController.disabled) telemetry.addData("Elev", "lim=%s, tgt=%.0f, pos=%d, pwr=%.2f", robot.getElevatorLimitString(), elevpid.getTarget(), robot.getElevatorPosition(), robot.getElevatorPower());
         if(idle) { //items that are only in idle
         } else {
             telemetry.addData("OpMode", "Run Time: %.2f", runtime.seconds());
