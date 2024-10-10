@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.pidcontrollers.pidElevatorController;
 import org.firstinspires.ftc.teamcode.pidcontrollers.pidTiltController;
 import org.firstinspires.ftc.teamcode.StateMachines;
 
+@SuppressWarnings("unused")
 @TeleOp(name="Mecanum Drive", group="JRB")
 public class teleopMecanum extends OpMode {
     hwMecanumFtclib robot = new hwMecanumFtclib(this);
@@ -137,9 +138,11 @@ public class teleopMecanum extends OpMode {
     @Override
     public void loop() {
         globalMachine.update();
-//        drive_fwd = (pid_turning) ? 0.0 : robot.driverOp.getLeftY(); //if pid turning, no throttle
-//        drive_strafe = (pid_turning) ? 0.0 : robot.driverOp.getLeftX(); //if pid turning, no strafing
-//        drive_turn = (pid_turning) ? turnpid.update(robot.getRobotYaw()) : 0.0;
+        /* /this prevents "commented out code" warning
+        drive_fwd = (pid_turning) ? 0.0 : robot.driverOp.getLeftY(); //if pid turning, no throttle
+        drive_strafe = (pid_turning) ? 0.0 : robot.driverOp.getLeftX(); //if pid turning, no strafing
+        drive_turn = (pid_turning) ? turnpid.update(robot.getRobotYaw()) : 0.0;
+         */
         drive_fwd = distanceCorrectedPower(stickDeadband(robot.driverOp.getLeftY()));
         drive_strafe = distanceCorrectedPower(stickDeadband(robot.driverOp.getLeftX()));
         drive_turn = stickDeadband(robot.driverOp.getRightX());
