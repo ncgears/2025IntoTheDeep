@@ -6,13 +6,14 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 //import org.apache.commons.math3.analysis.function.Constant;
 import org.firstinspires.ftc.teamcode.Constants;
 
+@SuppressWarnings({"unused"})
 public class pidTurnControllerFtclib {
     private double targetAngle;
-    private double kP, kI, kD, kF, kIZone;
+    private final double kP, kI, kD, kF, kIZone;
     private double accumulatedError = 0.0;
     private ElapsedTime timer = new ElapsedTime();
     private double lastError, lastTime = 0.0;
-    private OpMode myOpMode = null;
+    OpMode myOpMode;
 
     public pidTurnControllerFtclib(OpMode opmode, double target, double p, double i, double d, double f, double iZone) {
         myOpMode = opmode;

@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.pidcontrollers.pidElevatorController;
 import org.firstinspires.ftc.teamcode.pidcontrollers.pidTiltController;
 import org.firstinspires.ftc.teamcode.StateMachines;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused"})
 @TeleOp(name="Mecanum Drive", group="JRB")
 public class teleopMecanum extends OpMode {
     hwMecanumFtclib robot = new hwMecanumFtclib(this);
@@ -440,10 +440,6 @@ public class teleopMecanum extends OpMode {
         robot.setElevatorPower(power);
     }
 
-    private void noop() {
-        //nothing happens here
-    }
-
     private void telem(boolean idle) {
         telemetry.addData("Alliance", robot.alliance.toString());
         telemetry.addData("Last Command", m_last_command);
@@ -458,9 +454,8 @@ public class teleopMecanum extends OpMode {
         telemetry.addData("Sample Pickup State", sampleMachine.getState().toString());
         if(!Constants.Manipulator.tiltController.disabled) telemetry.addData("Tilt", "lim=%s, tgt=%.0f, pos=%d, pwr=%.2f", robot.getTiltLimitString(), tiltpid.getTarget(), robot.getTiltPosition(), robot.getTiltPower());
         if(!Constants.Manipulator.elevatorController.disabled) telemetry.addData("Elev", "lim=%s, tgt=%.0f, pos=%d, pwr=%.2f", robot.getElevatorLimitString(), elevpid.getTarget(), robot.getElevatorPosition(), robot.getElevatorPower());
-        if(idle) {
-            //items that are only in idle
-            noop();
+        if(idle) { //items that are only in idle
+            robot.noop();
         } else {
             telemetry.addData("OpMode", "Run Time: %.2f", runtime.seconds());
             telemetry.addData("Robot Drive", "fwd=%.2f, str=%.2f, turn=%.2f", drive_fwd, drive_strafe, drive_turn);

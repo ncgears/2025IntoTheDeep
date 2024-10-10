@@ -5,13 +5,14 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Constants;
 
+@SuppressWarnings({"unused"})
 public class pidTiltController {
     private double targetTicks;
-    private double kP, kI, kD, kF, kIZone;
+    private final double kP, kI, kD, kF, kIZone;
     private double accumulatedError = 0.0;
     private ElapsedTime timer = new ElapsedTime();
     private double lastError, lastTime = 0.0;
-    private OpMode myOpMode = null;
+    OpMode myOpMode;
     private double offset = 0.0;
 
     public pidTiltController(OpMode opmode, double target, double p, double i, double d, double f, double iZone) {

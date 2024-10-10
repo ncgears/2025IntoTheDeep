@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.hardware.hwMecanumFtclib;
 
+@SuppressWarnings({"unused"})
 @Autonomous(name="Do Nothing", group="JRB")
 //@Disabled
 public class

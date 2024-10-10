@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import android.util.Size;
-
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -9,15 +7,14 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.hardware.hwMecanumFtclib;
 import org.firstinspires.ftc.teamcode.pidcontrollers.pidDriveControllerFtclib;
 import org.firstinspires.ftc.teamcode.pidcontrollers.pidElevatorController;
 import org.firstinspires.ftc.teamcode.pidcontrollers.pidTiltController;
 import org.firstinspires.ftc.teamcode.pidcontrollers.pidTurnControllerFtclib;
-import org.firstinspires.ftc.vision.VisionPortal;
 
+@SuppressWarnings({"unused"})
 @Autonomous(name="Straight Specimen Auton", group="JRB")
 //@Disabled
 public class
@@ -65,7 +62,7 @@ autonStaightSpecimen extends OpMode {
         robot.init(hardwareMap);
 
         machine = new StateMachineBuilder()
-                /** Identify which alliance we are */
+                /* Identify which alliance we are */
                 .state(States.DETERMINE_TEAM)
                 .onEnter( () -> {
                     if(robot.alliance == Constants.Alliance.NONE) runCommand(Constants.Commands.DETERMINE_TEAM);
@@ -76,19 +73,19 @@ autonStaightSpecimen extends OpMode {
                 })
 //                .transitionWithPointerState( () -> (robot.alliance != Constants.Alliance.NONE), States.STRAFE_CLEAR)
                 .transition( () -> (robot.alliance != Constants.Alliance.NONE))
-                /** Move manipulator to transport position */
+                /* Move manipulator to transport position */
                 .state(States.MANIP_TRANSPORT1)
                 .onEnter( () -> {
                     m_manip_pos = Constants.Manipulator.Positions.TRANSPORT;
                 })
                 .transition(() -> (true))
-                /** Move manipulator to specimen high position */
+                /* Move manipulator to specimen high position */
                 .state(States.MANIP_SUB_SPECIMEN_HIGH)
                 .onEnter( () -> {
                     m_manip_pos = Constants.Manipulator.Positions.SPECIMEN_HIGH;
                 })
                 .transition(() -> (true))
-                /** Drive to the high specimen bar */
+                /* Drive to the high specimen bar */
                 .state(States.DRIVE_SUB_SPECIMEN_HIGH)
                 .onEnter( () -> {
                     elapsed.reset();
@@ -100,13 +97,13 @@ autonStaightSpecimen extends OpMode {
                     pid_driving = false;
                 })
                 .transition( () -> (pid_driving && drivepid.atTarget()) )
-                /** Move manipulator to transport position */
+                /* Move manipulator to transport position */
                 .state(States.MANIP_TRANSPORT2)
                 .onEnter( () -> {
                     m_manip_pos = Constants.Manipulator.Positions.TRANSPORT;
                 })
                 .transition(() -> (true))
-                /** Wait until end of auton */
+                /* Wait until end of auton */
                 .state(States.RESTING)
                 .onEnter( () -> {
                     pid_driving = false;
@@ -154,9 +151,11 @@ autonStaightSpecimen extends OpMode {
         drive_turn = (pid_turning || Constants.Auton.autonDriveStraight) ? -turnpid.update(robot.getRobotYaw()) : 0.0;
         autonDrive(drive_fwd, drive_strafe, drive_turn, robot.getRobotYaw());
 
+        /* /
 //this isnt working.. not sure why
 //        if (pid_turning && turnpid.atTarget(robot.getRobotYaw())) pid_turning = false;
 //        if (pid_driving && drivepid.atTarget()) pid_driving = false;
+        */
 
         if(m_last_command != Constants.Commands.NONE && runtime.seconds() - m_last_command_time > 2) { //reset the last command after 2 seconds
             runCommand(Constants.Commands.NONE);
@@ -246,6 +245,7 @@ autonStaightSpecimen extends OpMode {
         telemetry.addData("Tilt", "lim=%s, tgt=%.0f, pos=%d, pwr=%.2f", robot.getTiltLimitString(), tiltpid.getTarget(), robot.getTiltPosition(), robot.getTiltPower());
         telemetry.addData("Elev", "lim=%s, tgt=%.0f, pos=%d, pwr=%.2f", robot.getElevatorLimitString(), elevpid.getTarget(), robot.getElevatorPosition(), robot.getElevatorPower());
         if(idle) { //items that are only in idle
+            robot.noop();
         } else {
             telemetry.addData("OpMode", "Run Time: %.2f", runtime.seconds());
             telemetry.addData("Robot Drive", "fwd=%.2f, str=%.2f, turn=%.2f", drive_fwd, drive_strafe, drive_turn);

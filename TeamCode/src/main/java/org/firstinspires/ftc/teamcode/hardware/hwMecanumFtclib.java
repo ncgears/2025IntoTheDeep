@@ -65,7 +65,7 @@ import org.firstinspires.ftc.teamcode.Constants;
  * Also add a new OpMode, select the sample ConceptExternalHardwareClass.java, and select TeleOp.
  *
  */
-
+@SuppressWarnings({"unused"})
 public class hwMecanumFtclib {
 
     /* Public OpMode members. */
@@ -103,7 +103,7 @@ public class hwMecanumFtclib {
 
     /* Local OpMode members. */
     HardwareMap hwMap = null;
-    OpMode myOpMode = null;   // gain access to methods in the calling OpMode.
+    OpMode myOpMode;   // gain access to methods in the calling OpMode.
     boolean teleop = false;
 //    private LinearOpMode myOpMode = null;   // gain access to methods in the calling OpMode.
 
@@ -125,7 +125,7 @@ public class hwMecanumFtclib {
         //This is used for deciding to reset the elevator and tilt
         teleop = (myOpMode.toString().indexOf("teleopMecanum") > 0); //"org.firstinspires.ftc.teamcode.opmodes.teleopMecanum"
 
-        /* //Get reference to the relative layout so we can change the color of the robot controller app to match the alliance color
+        /*/ /Get reference to the relative layout so we can change the color of the robot controller app to match the alliance color
         int relativeLayoutId = hwMap.appContext.getResources().getIdentifier("RelativeLayout","id", hwMap.appContext.getPackageName());
         relativeLayout = ((Activity) hwMap.appContext).findViewById(relativeLayoutId);
         */
@@ -297,7 +297,7 @@ public class hwMecanumFtclib {
         String lim = "";
         lim += (getTiltLowLimit()) ? "L" : "";
         lim += (getTiltHighLimit()) ? "H" : "";
-        return (lim=="") ? "O" : lim;
+        return (lim.equals("")) ? "O" : lim;
     }
     public void setTiltPower(double power) {
         if(power < 0 && getTiltLowLimit()) {
@@ -328,7 +328,7 @@ public class hwMecanumFtclib {
         String lim = "";
         lim += (getElevatorLowLimit()) ? "L" : "";
         lim += (getElevatorHighLimit()) ? "H" : "";
-        return (lim=="") ? "O" : lim;
+        return (lim.equals("")) ? "O" : lim;
     }
     public void homeElevator() {
         if(!getElevatorLowLimit()) m_elev_motor.set(-Constants.Manipulator.elevatorController.homingSpeed);
@@ -368,7 +368,14 @@ public class hwMecanumFtclib {
         try {
             myOpMode.telemetry.speak(text);
             wait(delayMs);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            //do nothing
+        }
+    }
+
+    // Does nothing
+    public void noop() {
+        //do nothing
     }
 
 }
