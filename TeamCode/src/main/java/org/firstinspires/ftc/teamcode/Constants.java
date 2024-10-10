@@ -16,6 +16,7 @@ public class Constants {
     public static class Drivetrain {
         public static boolean useFieldCentric = true; //try to use FC if gyro has value
         public static boolean useDriveStraight = false; //use DriveStraight correction
+        public static boolean useInputSquaring = true; //use input squaring for better low end control
         public static class woahNelly {
             public static boolean enabled = false; // use woahNelly system to slow down at obstacle
             public static double distance = 10.0;//Inches from obstacle to adjust throttle when aimed at obstacle
