@@ -413,7 +413,7 @@ public class teleopMecanum extends OpMode {
     public double stickDeadband(double value) {
         if (Math.abs(value) <= Constants.Global.stickDeadbandMin) return 0.0;
         if (Math.abs(value) >= Constants.Global.stickDeadbandMax) return Math.signum(value);
-        return (Constants.Drivetrain.useInputSquaring) ? value * value : value;
+        return (Constants.Drivetrain.useInputSquaring) ? value * value * Math.signum(value) : value;
     }
 
     public double distanceCorrectedPower(double power) {
