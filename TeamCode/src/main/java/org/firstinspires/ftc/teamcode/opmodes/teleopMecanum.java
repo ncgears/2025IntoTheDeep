@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 //import com.arcrobotics.ftclib.command.InstantCommand;
+import androidx.annotation.NonNull;
+
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -195,9 +197,9 @@ public class teleopMecanum extends OpMode {
             m_manip_pos = Constants.Manipulator.Positions.START;
             m_manip_manual = true;
             try {
-                moveElevator();
+                moveElevator(false);
                 wait(3000);
-                moveTilt();
+                moveTilt(false);
             } catch (Exception e) {
                 //do nothing
             } finally {
@@ -266,16 +268,12 @@ public class teleopMecanum extends OpMode {
         /* End Driver Controls */
 
         /* Operator Controls */
-        if (robot.operOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) < 0.5 && m_manip_momentary) { //release scoring button
-            m_manip_momentary = false;
-            m_manip_pos = m_manip_prev_pos;
-            telemCommand("RETURN");
-//        } else if (robot.operOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) >= 0.5 && !m_manip_momentary) { //press scoring button
-//            switch (m_manip_pos) {
-//                case START:
-//                case TRANSPORT:
-//                default:
-//            }
+        if (robot.operOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) < 0.5 && m_manip_manual) { //release manual control button
+            m_manip_manual = false;
+            telemCommand("PID MANIP");
+        } else if (robot.operOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) >= 0.5 && !m_manip_manual) { //press manual control button
+            m_manip_manual = true;
+            telemCommand("MANUAL MANIP");
         } else if (!o_rb && robot.operOp.getButton(GamepadKeys.Button.RIGHT_BUMPER)) { //position up
             o_rb = true;
             switch (m_manip_pos) {
@@ -354,10 +352,8 @@ public class teleopMecanum extends OpMode {
         /* End Operator Controls */
 
         // Update the manipulator - these should be called every loop to make the manipulator move to target position
-        if(!m_manip_manual) {
-            moveElevator();
-            moveTilt();
-        }
+        moveElevator(m_manip_manual);
+        moveTilt(m_manip_manual);
 
         // command name updates for telemetry
         if(!m_last_command.equals("NONE") && runtime.seconds() - m_last_command_time > 2) { //reset the last command after 2 seconds
@@ -367,7 +363,7 @@ public class teleopMecanum extends OpMode {
         telem(false);
     }
 
-    public void telemCommand(String command) {
+    public void telemCommand(@NonNull String command) {
         m_last_command = command;
         m_last_command_time = runtime.seconds();
         switch (command) {
@@ -390,29 +386,6 @@ public class teleopMecanum extends OpMode {
         pid_turn_target = targetAngle;
     }
 
-    public void moveTilt() {
-        if(Constants.Manipulator.tiltController.disabled) return;
-        if(tilt_low_limit) {
-            tiltpid.setTarget(robot.getTiltPosition());
-            tilt_low_limit = false;
-        } else if (tilt_high_limit) {
-            tiltpid.setTarget(robot.getTiltPosition());
-            tilt_high_limit = false;
-        } else {
-            tiltpid.setTargetPosition(m_manip_pos);
-        }
-        double power = tiltpid.update(robot.getTiltPosition());
-        if(power < 0 && robot.getTiltLowLimit()) {
-            tiltpid.setTarget(robot.getTiltPosition());
-            tilt_low_limit = true;
-        }
-        if(power > 0 && robot.getTiltHighLimit()) {
-            tiltpid.setTarget(robot.getTiltPosition());
-            tilt_high_limit = true;
-        }
-        robot.setTiltPower(power);
-    }
-
     public double stickDeadband(double value) {
         if (Math.abs(value) <= Constants.Global.stickDeadbandMin) return 0.0;
         if (Math.abs(value) >= Constants.Global.stickDeadbandMax) return Math.signum(value);
@@ -433,11 +406,65 @@ public class teleopMecanum extends OpMode {
         return power;
     }
 
-    public void moveElevator() {
+    public double getTiltManualPower() {
+        //get requested power from oper stick
+        double power = stickDeadband(robot.operOp.getRightY()) * -1.0; //inverted
+        //prevent moving if we are at limits
+        if(power < 0 && robot.getTiltLowLimit()) power = 0;
+        if(power > 0 && robot.getTiltHighLimit()) power = 0;
+        return power;
+    }
+
+    public void moveTilt(boolean manual) {
+        if(Constants.Manipulator.tiltController.disabled) return;
+        if(manual) {
+            //move the tilt
+            robot.setTiltPower(getTiltManualPower());
+            tiltpid.setTarget(robot.getTiltPosition());
+        } else {
+            if (tilt_low_limit) {
+                tiltpid.setTarget(robot.getTiltPosition());
+                tilt_low_limit = false;
+            } else if (tilt_high_limit) {
+                tiltpid.setTarget(robot.getTiltPosition());
+                tilt_high_limit = false;
+            } else {
+                tiltpid.setTargetPosition(m_manip_pos);
+            }
+            double power = tiltpid.update(robot.getTiltPosition());
+            if (power < 0 && robot.getTiltLowLimit()) {
+                tiltpid.setTarget(robot.getTiltPosition());
+                tilt_low_limit = true;
+            }
+            if (power > 0 && robot.getTiltHighLimit()) {
+                tiltpid.setTarget(robot.getTiltPosition());
+                tilt_high_limit = true;
+            }
+            robot.setTiltPower(power);
+        }
+    }
+
+    public double getElevatorManualPower() {
+        //get requested power from oper stick
+        double power = stickDeadband(robot.operOp.getLeftY()) * -1.0; //inverted
+        //prevent moving if we are at limits
+        if(power < 0 && robot.getElevatorLowLimit()) power = 0;
+        if(power > 0 && robot.getElevatorHighLimit()) power = 0;
+        return power;
+    }
+
+    public void moveElevator(boolean manual) {
         if(Constants.Manipulator.elevatorController.disabled) return;
-        elevpid.setTargetPosition(m_manip_pos);
-        double power = elevpid.update(robot.getElevatorPosition());
-        robot.setElevatorPower(power);
+        if(manual) {
+            //move the elevator
+            robot.setElevatorPower(getElevatorManualPower());
+            //when we stop asking for movement, save the target
+            //if(power == 0) elevpid.setTarget(robot.getElevatorPosition());
+        } else {
+            elevpid.setTargetPosition(m_manip_pos);
+            double power = elevpid.update(robot.getElevatorPosition());
+            robot.setElevatorPower(power);
+        }
     }
 
     private void telem(boolean idle) {
@@ -454,6 +481,7 @@ public class teleopMecanum extends OpMode {
         telemetry.addData("Sample Pickup State", sampleMachine.getState().toString());
         if(!Constants.Manipulator.tiltController.disabled) telemetry.addData("Tilt", "lim=%s, tgt=%.0f, pos=%d, pwr=%.2f", robot.getTiltLimitString(), tiltpid.getTarget(), robot.getTiltPosition(), robot.getTiltPower());
         if(!Constants.Manipulator.elevatorController.disabled) telemetry.addData("Elev", "lim=%s, tgt=%.0f, pos=%d, pwr=%.2f", robot.getElevatorLimitString(), elevpid.getTarget(), robot.getElevatorPosition(), robot.getElevatorPower());
+        if(m_manip_manual) telemetry.addData("Manual", "tilt=%.0f, elev=%.0f", getTiltManualPower(), getElevatorManualPower());
         if(idle) { //items that are only in idle
             robot.noop();
         } else {
