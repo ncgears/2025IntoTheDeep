@@ -488,8 +488,17 @@ public class teleopMecanum extends OpMode {
         telemetry.addData("Robot State", globalMachine.getState().toString());
         telemetry.addData("Specimen Pickup State", specimenMachine.getState().toString());
         telemetry.addData("Sample Pickup State", sampleMachine.getState().toString());
-        if(!Constants.Manipulator.tiltController.disabled) telemetry.addData("Tilt", "lim=%s, tgt=%.0f, pos=%d, pwr=%.2f", robot.getTiltLimitString(), tiltpid.getTarget(), robot.getTiltPosition(), robot.getTiltPower());
-        if(!Constants.Manipulator.elevatorController.disabled) telemetry.addData("Elev", "lim=%s, tgt=%.0f, pos=%d, pwr=%.2f", robot.getElevatorLimitString(), elevpid.getTarget(), robot.getElevatorPosition(), robot.getElevatorPower());
+        telemetry.addData("Scoop", "up=%s, full=%s",robot.getScoopUpString(), robot.getScoopFullString());
+        if(!Constants.Manipulator.tiltController.disabled) {
+            telemetry.addData("Tilt", "lim=%s, tgt=%.0f, pos=%d, pwr=%.2f", robot.getTiltLimitString(), tiltpid.getTarget(), robot.getTiltPosition(), robot.getTiltPower());
+        } else {
+            telemetry.addData("Tilt","%s","DISABLED");
+        }
+        if(!Constants.Manipulator.elevatorController.disabled) {
+            telemetry.addData("Elev", "lim=%s, tgt=%.0f, pos=%d, pwr=%.2f", robot.getElevatorLimitString(), elevpid.getTarget(), robot.getElevatorPosition(), robot.getElevatorPower());
+        } else {
+            telemetry.addData("Elev","%s","DISABLED");
+        }
         if(m_manip_manual) telemetry.addData("Manual", "tilt=%.0f, elev=%.0f", getTiltManualPower(), getElevatorManualPower());
         if(idle) { //items that are only in idle
             robot.noop();

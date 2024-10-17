@@ -90,6 +90,7 @@ public class hwMecanumFtclib {
     // Manipulator related stuff
     public Motor m_tilt_motor, m_elev_motor = null;
     public DigitalChannel m_tilt_lim_low, m_tilt_lim_high, m_elev_lim_low, m_elev_lim_high = null;
+    public DigitalChannel m_scoop_up, m_scoop_full = null;
 
     // Intake related stuff
     public Constants.Intake.Directions m_intake_direction = Constants.Intake.Directions.STOP;
@@ -181,6 +182,13 @@ public class hwMecanumFtclib {
             m_elev_motor.resetEncoder();
         } catch(Exception e) {
             myOpMode.telemetry.addLine("ERROR: Could not init Elevator");
+        }
+
+        try {
+            m_scoop_up = hwMap.get(DigitalChannel.class, "scoop sw up"); //normally closed
+            m_scoop_full = hwMap.get(DigitalChannel.class, "scoop sw full"); //normally closed
+        } catch (Exception e) {
+            myOpMode.telemetry.addLine("ERROR: Could not init scoop limits");
         }
 
         try {
@@ -350,6 +358,12 @@ public class hwMecanumFtclib {
         }
         m_elev_motor.set(power);
     }
+
+    // Scoop Methods
+    public boolean getScoopUp() { return !m_scoop_up.getState(); }
+    public String getScoopUpString() { return (getScoopUp()) ? "YES" : "NO"; }
+    public boolean getScoopFull() { return !m_scoop_full.getState(); }
+    public String getScoopFullString() { return (getScoopFull()) ? "YES" : "NO"; }
 
     // Intake Methods
     public void setIntakeDirection(Constants.Intake.Directions direction) {
