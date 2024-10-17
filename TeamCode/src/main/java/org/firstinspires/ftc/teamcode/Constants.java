@@ -60,9 +60,9 @@ public class Constants {
             IN(1.0),
             OUT(-1.0),
             STOP(0.0);
-            private final double direction;
-            Directions(double direction) { this.direction = direction; }
-            public double getDirection() { return this.direction; }
+            private final double value;
+            Directions(double value) { this.value = value; }
+            public double getValue() { return this.value; }
         }
         public static boolean disabled = false; //true to disable intake
     }

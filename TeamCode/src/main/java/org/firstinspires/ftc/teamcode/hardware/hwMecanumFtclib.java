@@ -39,6 +39,7 @@ import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
@@ -75,7 +76,8 @@ public class hwMecanumFtclib {
 //    public Motor[] m_motors = null;
     public GamepadEx driverOp, operOp = null;
     public MecanumDrive drive = null;
-    public ServoEx m_intakeservo = null;
+//    public ServoEx m_intakeservo = null;
+    public CRServo m_intakeservo = null;
 
     public IMU imu = null;
 
@@ -183,8 +185,9 @@ public class hwMecanumFtclib {
 
         try {
             // Intake
-            m_intakeservo = new SimpleServo(hwMap, "intake servo", 0, 30);
-            m_intakeservo.setInverted(false);
+//            m_intakeservo = new SimpleServo(hwMap, "intake servo", 0, 30);
+//            m_intakeservo.setInverted(false);
+            m_intakeservo = hwMap.get(CRServo.class, "intake servo");
             setIntakeDirection(Constants.Intake.Directions.STOP);
         } catch (Exception e) {
             myOpMode.telemetry.addLine("ERROR: Could not init Intake Servo");
@@ -351,7 +354,15 @@ public class hwMecanumFtclib {
     // Intake Methods
     public void setIntakeDirection(Constants.Intake.Directions direction) {
         m_intake_direction = direction;
-        m_intakeservo.turnToAngle(direction.getDirection());
+        if(!Constants.Intake.disabled) {
+            if(m_intakeservo != null) {
+                m_intakeservo.setPower(direction.getValue());
+            } else {
+                myOpMode.telemetry.addLine("ERROR: Intake is not initialized");
+            }
+        } else {
+            myOpMode.telemetry.addLine("ERROR: Intake is disabled");
+        }
     }
     public Constants.Intake.Directions getIntakeDirection() {
         return m_intake_direction;

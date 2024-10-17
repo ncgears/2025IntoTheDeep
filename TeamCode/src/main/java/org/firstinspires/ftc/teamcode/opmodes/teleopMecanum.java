@@ -48,7 +48,7 @@ public class teleopMecanum extends OpMode {
     boolean tilt_low_limit, tilt_high_limit = false;
 
     boolean d_a, d_b, d_x, d_y, d_lb, d_lt = false; //for debouncing driver button presses
-    boolean o_rb, o_lb, o_up, o_dn, o_lt, o_rt = false; //for debouncing operator button presses
+    boolean o_rb, o_lb, o_up, o_dn, o_lt, o_rt, o_tl, o_tr = false; //for debouncing operator button presses
 
     public enum States {
         INIT,
@@ -268,10 +268,19 @@ public class teleopMecanum extends OpMode {
         /* End Driver Controls */
 
         /* Operator Controls */
-        if (robot.operOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) < 0.5 && m_manip_manual) { //release manual control button
+        if (o_tr && robot.operOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) < 0.5) { //release intake button
+            telemCommand("INTAKE STOP");
+            o_tr = false;
+            robot.setIntakeDirection(Constants.Intake.Directions.STOP);
+        } else if (!o_tr && robot.operOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) >= 0.5) { //press intake button
+            telemCommand("INTAKE IN");
+            o_tr = true;
+            robot.setIntakeDirection(Constants.Intake.Directions.IN);
+        }
+        if (robot.operOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) < 0.5 && m_manip_manual) { //release manual control button
             m_manip_manual = false;
             telemCommand("PID MANIP");
-        } else if (robot.operOp.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) >= 0.5 && !m_manip_manual) { //press manual control button
+        } else if (robot.operOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) >= 0.5 && !m_manip_manual) { //press manual control button
             m_manip_manual = true;
             telemCommand("MANUAL MANIP");
         } else if (!o_rb && robot.operOp.getButton(GamepadKeys.Button.RIGHT_BUMPER)) { //position up
