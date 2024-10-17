@@ -120,7 +120,7 @@ public class Constants {
             }
         }
         public static class elevatorController {
-            public static boolean disabled = true; //true to disable elevator controller
+            public static boolean disabled = false; //true to disable elevator controller
             public static double offsetStepSize = 200; //amount to change offset per request
             public static double homingSpeed = 0.1; //speed for homing to limit
             public static double ticksPerRev = 28;
