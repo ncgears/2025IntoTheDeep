@@ -476,19 +476,23 @@ public class teleopMecanum extends OpMode {
         }
     }
 
-    private void telem(boolean idle) {
+    private void telem(boolean idle) { //items that are visible in all modes
         telemetry.addData("Alliance", robot.alliance.toString());
         telemetry.addData("Last Command", m_last_command);
         telemetry.addData("Robot Drive", "%s Centric", (robot.fieldCentric) ? "Field" : "Robot");
         telemetry.addData("Heading Lock", (robot.driveStraight) ? "YES" : "NO");
         telemetry.addData("Robot Heading", "%.2f", robot.getRobotYaw());
         telemetry.addData("Obstacle Distance", "%.2f Inches", robot.getDistance());
-        if(!Constants.Intake.disabled) telemetry.addData("Intake Direction", robot.getIntakeDirection().toString());
-        telemetry.addData("Manipulator Position", m_manip_pos.toString());
         telemetry.addData("Robot State", globalMachine.getState().toString());
         telemetry.addData("Specimen Pickup State", specimenMachine.getState().toString());
         telemetry.addData("Sample Pickup State", sampleMachine.getState().toString());
+        telemetry.addData("Manipulator Position", m_manip_pos.toString());
         telemetry.addData("Scoop", "up=%s, full=%s",robot.getScoopUpString(), robot.getScoopFullString());
+        if(!Constants.Intake.disabled) {
+            telemetry.addData("Intake Direction", robot.getIntakeDirection().toString());
+        } else {
+            telemetry.addData("Intake Direction", "DISABLED");
+        }
         if(!Constants.Manipulator.tiltController.disabled) {
             telemetry.addData("Tilt", "lim=%s, tgt=%.0f, pos=%d, pwr=%.2f", robot.getTiltLimitString(), tiltpid.getTarget(), robot.getTiltPosition(), robot.getTiltPower());
         } else {
@@ -502,7 +506,7 @@ public class teleopMecanum extends OpMode {
         if(m_manip_manual) telemetry.addData("Manual", "tilt=%.0f, elev=%.0f", getTiltManualPower(), getElevatorManualPower());
         if(idle) { //items that are only in idle
             robot.noop();
-        } else {
+        } else { //items that are only while running
             telemetry.addData("OpMode", "Run Time: %.2f", runtime.seconds());
             telemetry.addData("Robot Drive", "fwd=%.2f, str=%.2f, turn=%.2f", drive_fwd, drive_strafe, drive_turn);
 //        if(pid_driving) telemetry.addData("PID Drive", "target=%.0f, error=%.0f", pid_drive_target, drivepid.getLastError());
