@@ -333,20 +333,24 @@ public class teleopMecanum extends OpMode {
             o_lb = false;
         }
 
-        /* DPAD_UP and DPAD_DOWN handles adjusting the tilt offset */
-        if (!o_up && robot.operOp.getButton(GamepadKeys.Button.DPAD_UP)) { //tilt offset up
-//            o_up = true;
-            tiltpid.increaseOffset();
-        } else if (!o_dn && robot.operOp.getButton(GamepadKeys.Button.DPAD_DOWN)) { //tilt offset down
-//            o_dn = true;
-            tiltpid.decreaseOffset();
-        } else if (o_up && !robot.operOp.getButton(GamepadKeys.Button.DPAD_UP)) { //released the button
+        /* DPAD_UP and DPAD_DOWN handles running the intake */
+        if (!o_up && robot.operOp.getButton(GamepadKeys.Button.DPAD_UP)) { //intake out
+            telemCommand("INTAKE OUT");
+            robot.setIntakeDirection(Constants.Intake.Directions.OUT);
+            o_up = true;
+        } else if (!o_dn && robot.operOp.getButton(GamepadKeys.Button.DPAD_DOWN)) { //intake in
+            telemCommand("INTAKE IN");
+            robot.setIntakeDirection(Constants.Intake.Directions.IN);
+            o_dn = true;
+        } else if ((o_up || o_dn) && !robot.operOp.getButton(GamepadKeys.Button.DPAD_UP) && !robot.operOp.getButton(GamepadKeys.Button.DPAD_DOWN)) { //released the button
+            telemCommand("INTAKE STOP");
+            robot.setIntakeDirection(Constants.Intake.Directions.STOP);
             o_up = false;
-        } else if (o_dn && !robot.operOp.getButton(GamepadKeys.Button.DPAD_DOWN)) { //released the button
             o_dn = false;
         }
 
         /* DPAD_LEFT and DPAD_RIGHT handles adjusting the elevator offset */
+        /*
         if (!o_rt && robot.operOp.getButton(GamepadKeys.Button.DPAD_RIGHT)) { //elev offset up
             o_rt = true;
             elevpid.increaseOffset();
@@ -358,6 +362,7 @@ public class teleopMecanum extends OpMode {
         } else if (o_rt && !robot.operOp.getButton(GamepadKeys.Button.DPAD_RIGHT)) { //released the button
             o_rt = false;
         }
+        */
         /* End Operator Controls */
 
         // Update the manipulator - these should be called every loop to make the manipulator move to target position
