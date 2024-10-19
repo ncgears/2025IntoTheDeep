@@ -512,7 +512,7 @@ public class teleopMecanum extends OpMode {
         } else {
             telemetry.addData("Elev","%s","DISABLED");
         }
-        if(m_manip_manual) telemetry.addData("Manual", "tilt=%.0f, elev=%.0f", getTiltManualPower(), getElevatorManualPower());
+        if(m_manip_manual) telemetry.addData("Manual", "tilt=%.2f, elev=%.2f", getTiltManualPower(), getElevatorManualPower());
         if(idle) { //items that are only in idle
             robot.noop();
         } else { //items that are only while running
