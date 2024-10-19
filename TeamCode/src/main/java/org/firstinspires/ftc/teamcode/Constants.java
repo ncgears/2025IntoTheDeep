@@ -108,6 +108,7 @@ public class Constants {
             public static double offsetStepSize = 90; //amount to change offset per request
             public static double homingSpeed = 0.1; //speed for homing to limit
             public static double targetThresholdTicks = 30; //how many encoder ticks is close enough
+            public static double minPower = 0.07; //minimum power cutoff to save battery
             public static double kF = 0.0; //0.0 //minimum power to move the motor
             public static double kP = 0.0015; //0.0015
             public static double kI = 0.0000010; //0.0000015
@@ -130,6 +131,7 @@ public class Constants {
             public static double ticksPerInch = (ticksPerRev * gearReduction / drumCircumferenceInches) / 2; //2 stage elevator makes 2:1 reduction
             public static double targetThreshold = 0.2; //how many inches is close enough
             public static double targetThresholdTicks = 50; //targetThreshold * ticksPerInch;
+            public static double minPower = 0.05; //minimum power cutoff to save battery
             public static double kF = 0.0; //0.0 //minimum power to move the motor
             public static double kP = 0.0010; //0025
             public static double kI = 0.000004; //000002
