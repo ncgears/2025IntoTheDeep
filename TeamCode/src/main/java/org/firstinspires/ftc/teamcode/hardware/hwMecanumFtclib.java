@@ -34,8 +34,6 @@ import static org.firstinspires.ftc.teamcode.Constants.Alliance;
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.hardware.SensorRevTOFDistance;
-import com.arcrobotics.ftclib.hardware.ServoEx;
-import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -165,7 +163,6 @@ public class hwMecanumFtclib {
             m_tilt_motor = new Motor(hwMap, "tilt motor");
             m_tilt_motor.setRunMode(Motor.RunMode.RawPower);
             m_tilt_motor.setInverted(false);
-//            if(!teleop) m_tilt_motor.resetEncoder();
             m_tilt_motor.resetEncoder();
         } catch(Exception e) {
             myOpMode.telemetry.addLine("ERROR: Could not init Tilt");
@@ -177,8 +174,7 @@ public class hwMecanumFtclib {
             m_elev_lim_high = hwMap.get(DigitalChannel.class, "elev sw high"); //normally closed
             m_elev_motor = new Motor(hwMap, "elev motor");
             m_elev_motor.setRunMode(Motor.RunMode.RawPower);
-            m_elev_motor.setInverted(false);
-//            if(!teleop) m_elev_motor.resetEncoder();
+            m_elev_motor.setInverted(true);
             m_elev_motor.resetEncoder();
         } catch(Exception e) {
             myOpMode.telemetry.addLine("ERROR: Could not init Elevator");
@@ -315,6 +311,8 @@ public class hwMecanumFtclib {
             myOpMode.telemetry.addLine("ERROR: Tilt is at low limit");
 //            playAudio("Tilt Low Limit", 500);
             power = 0;
+            //set the current position to zero since we are at the limit
+            m_elev_motor.resetEncoder();
         }
         if(power > 0 && getTiltHighLimit()) {
             myOpMode.telemetry.addLine("ERROR: Tilt is at high limit");
@@ -351,6 +349,8 @@ public class hwMecanumFtclib {
         if(power < 0 && getElevatorLowLimit()) {
             myOpMode.telemetry.addLine("ERROR: Elevator is at low limit");
             power = 0;
+            //set the current position to zero since we are at the limit
+            m_elev_motor.resetEncoder();
         }
         if(power > 0 && getElevatorHighLimit()) {
             myOpMode.telemetry.addLine("ERROR: Elevator is at high limit");
