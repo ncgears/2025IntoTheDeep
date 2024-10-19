@@ -243,6 +243,10 @@ public class hwMecanumFtclib {
     }
 
     public void setDrivePower(double fl, double fr, double rl, double rr) {
+        fl = (fl<=Constants.Drivetrain.minPower) ? 0.0 : fl;
+        fr = (fr<=Constants.Drivetrain.minPower) ? 0.0 : fr;
+        rl = (rl<=Constants.Drivetrain.minPower) ? 0.0 : rl;
+        rr = (rr<=Constants.Drivetrain.minPower) ? 0.0 : rr;
         m_motor_fl.set(fl);
         m_motor_fr.set(fr);
         m_motor_rl.set(rl);
