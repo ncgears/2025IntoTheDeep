@@ -462,7 +462,7 @@ public class teleopMecanum extends OpMode {
 
     public double getElevatorManualPower() {
         //get requested power from oper stick
-        double power = stickDeadband(robot.operOp.getLeftY()) * -1.0; //inverted
+        double power = stickDeadband(robot.operOp.getLeftY()) * 1.0; //non-inverted
         /* this is handled in setPower
         //prevent moving if we are at limits
         if(power < 0 && robot.getElevatorLowLimit()) power = 0;
