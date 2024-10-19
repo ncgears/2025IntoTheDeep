@@ -78,22 +78,21 @@ public class Constants {
         public enum Positions {
             //NAME(angle,length,distance)
             //tilt = (double) position of the tilt, in encoder counts, from the low limit switch reference
-            //elevator = (double) length of the elevator, in inches
+            //elevator = (double) length of the elevator, in inches (if useInches) or ticks
             //distance = (double) robot distance from backstage (-1 if not used)
-            ZERO(0,0.0,-1.0),
-            START(0,0.0,-1.0),
-            TRANSPORT(650,3.0,-1.0),
-            SPECIMEN_LOW(650,5.0,-1.0),
-            SPECIMEN_HIGH(1990,10.0,-1.0),
-            SPECIMEN_PICKUP(200,3.0,-1.0),
-            SAMPLE_LOW(650,4.25,-1.0),
-            SAMPLE_HIGH(7440,4.5,-1.0),
-            SAMPLE_PICKUP(0,5.0,-1.0),
-            CLIMB_READY(2820,20,-1.0),
-            CLIMB_UP(2820,20,-1.0),
-            CLIMB_LIFT(2820,20,-1.0),
-            CLIMB_VERT(2820, 20, -1.0),
-            LIMIT(8000,24,-1.0);
+            ZERO(0,0,-1.0),
+            START(0,0,-1.0),
+            TRANSPORT(650,1280,-1.0),
+            SPECIMEN_LOW(650,1280,-1.0),
+            SPECIMEN_HIGH(1990,3860,-1.0),
+            SPECIMEN_PICKUP(200,200,-1.0),
+            SAMPLE_LOW(650,3400,-1.0),
+            SAMPLE_HIGH(7440,8300,-1.0),
+            SAMPLE_PICKUP(0,1280,-1.0),
+            CLIMB_READY(2820,6660,-1.0),
+            CLIMB_UP(2820,5000,-1.0),
+            CLIMB_LIFT(5000,6660,-1.0),
+            LIMIT(8000,8000,-1.0);
             final double tilt, elevator, distance;
             Positions(double tilt, double elevator, double distance) {
                 this.tilt = tilt;
@@ -132,6 +131,7 @@ public class Constants {
             public static double ticksPerInch = (ticksPerRev * gearReduction / drumCircumferenceInches) / 2; //2 stage elevator makes 2:1 reduction
             public static double targetThreshold = 0.2; //how many inches is close enough
             public static double targetThresholdTicks = 50; //targetThreshold * ticksPerInch;
+            public static boolean useInches = false; //elevator positions are in inches
             public static double kF = 0.0; //0.0 //minimum power to move the motor
             public static double kP = 0.0010; //0025
             public static double kI = 0.000004; //000002

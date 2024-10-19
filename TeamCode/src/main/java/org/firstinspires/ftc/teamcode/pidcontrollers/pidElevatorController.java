@@ -70,7 +70,11 @@ public class pidElevatorController {
     }
 
     public void setTargetPosition(Constants.Manipulator.Positions position) {
-        setTargetInches(position.getElevator());
+        if(Constants.Manipulator.elevatorController.useInches) {
+            setTargetInches(position.getElevator());
+        } else {
+            setTarget(position.getElevator());
+        }
     }
 
     public void setTargetInches(double inches) {
