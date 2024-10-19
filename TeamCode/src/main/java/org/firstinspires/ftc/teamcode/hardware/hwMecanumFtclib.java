@@ -333,8 +333,8 @@ public class hwMecanumFtclib {
     // Elevator Methods
     public int getElevatorPosition() { return m_elev_motor.getCurrentPosition(); }
     public double getElevatorPower() { return m_elev_motor.get(); }
-    public boolean getElevatorLowLimit() { return !m_elev_lim_low.getState(); }
-    public boolean getElevatorHighLimit() { return !m_elev_lim_high.getState(); }
+    public boolean getElevatorLowLimit() { return m_elev_lim_low.getState(); }
+    public boolean getElevatorHighLimit() { return m_elev_lim_high.getState(); }
     public String getElevatorLimitString() {
         String lim = "";
         lim += (getElevatorLowLimit()) ? "L" : "";
@@ -360,7 +360,7 @@ public class hwMecanumFtclib {
     }
 
     // Scoop Methods
-    public boolean getScoopUp() { return !m_scoop_up.getState(); }
+    public boolean getScoopUp() { return m_scoop_up.getState(); }
     public String getScoopUpString() { return (getScoopUp()) ? "YES" : "NO"; }
     public boolean getScoopFull() { return !m_scoop_full.getState(); }
     public String getScoopFullString() { return (getScoopFull()) ? "YES" : "NO"; }
