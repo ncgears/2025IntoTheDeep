@@ -312,7 +312,7 @@ public class hwMecanumFtclib {
 //            playAudio("Tilt Low Limit", 500);
             power = 0;
             //set the current position to zero since we are at the limit
-            m_elev_motor.resetEncoder();
+            m_tilt_motor.resetEncoder();
         }
         if(power > 0 && getTiltHighLimit()) {
             myOpMode.telemetry.addLine("ERROR: Tilt is at high limit");

@@ -423,9 +423,11 @@ public class teleopMecanum extends OpMode {
     public double getTiltManualPower() {
         //get requested power from oper stick
         double power = stickDeadband(robot.operOp.getRightY()) * -1.0; //inverted
+        /* this is handled in setPower
         //prevent moving if we are at limits
         if(power < 0 && robot.getTiltLowLimit()) power = 0;
         if(power > 0 && robot.getTiltHighLimit()) power = 0;
+         */
         return power;
     }
 
@@ -461,9 +463,11 @@ public class teleopMecanum extends OpMode {
     public double getElevatorManualPower() {
         //get requested power from oper stick
         double power = stickDeadband(robot.operOp.getLeftY()) * -1.0; //inverted
+        /* this is handled in setPower
         //prevent moving if we are at limits
         if(power < 0 && robot.getElevatorLowLimit()) power = 0;
         if(power > 0 && robot.getElevatorHighLimit()) power = 0;
+         */
         return power;
     }
 
