@@ -323,7 +323,7 @@ public class hwMecanumFtclib {
 //            playAudio("Tilt High Limit", 500);
             power = 0;
         }
-        power=(Math.abs(power)<=Constants.Manipulator.tiltController.minPower) ? 0.0 : power;
+        power=(Math.abs(power)<=Constants.Manipulator.tiltController.limits.minOutput) ? 0.0 : power;
         m_tilt_motor.set(power);
     }
     public void homeTilt() {
@@ -361,7 +361,7 @@ public class hwMecanumFtclib {
             myOpMode.telemetry.addLine("ERROR: Elevator is at high limit");
             power = 0;
         }
-        power=(Math.abs(power)<=Constants.Manipulator.elevatorController.minPower) ? 0.0 : power;
+        power=(Math.abs(power)<=Constants.Manipulator.elevatorController.limits.minOutput) ? 0.0 : power;
         m_elev_motor.set(power);
     }
 

@@ -315,18 +315,21 @@ public class teleopMecanum extends OpMode {
                 default:
 //                    telemCommand("NOTHING");
             }
-        } else if (robot.operOp.getButton(GamepadKeys.Button.Y)) { //last scoring position
-            m_manip_pos = m_last_manip_pos;
-            telemCommand("LAST SCORING POSITION");
+        } else if (robot.operOp.getButton(GamepadKeys.Button.Y)) { //specimen high
+            m_manip_pos = Constants.Manipulator.Positions.SPECIMEN_HIGH;
+            telemCommand("SPECIMEN HIGH");
         } else if (robot.operOp.getButton(GamepadKeys.Button.X)) { //transport
             m_manip_pos = Constants.Manipulator.Positions.TRANSPORT;
             telemCommand("TRANSPORT POSITION");
-        } else if (robot.operOp.getButton(GamepadKeys.Button.A)) { //floor pickup
+        } else if (robot.operOp.getButton(GamepadKeys.Button.A)) { //sample pickup
             m_manip_pos = Constants.Manipulator.Positions.SAMPLE_PICKUP;
-            telemCommand("FLOOR PICKUP");
-        } else if (robot.operOp.getButton(GamepadKeys.Button.START)) {
-            m_manip_pos = Constants.Manipulator.Positions.START;
-            telemCommand("STARTING CONFIG");
+            telemCommand("SAMPLE PICKUP");
+        } else if (robot.operOp.getButton(GamepadKeys.Button.B)) { //specimen pickup
+            m_manip_pos = Constants.Manipulator.Positions.SPECIMEN_PICKUP;
+            telemCommand("SPECIMEN PICKUP");
+        } else if (robot.operOp.getButton(GamepadKeys.Button.START)) { //sample high
+            m_manip_pos = Constants.Manipulator.Positions.SAMPLE_HIGH;
+            telemCommand("SAMPLE HIGH");
         } else if (o_rb && !robot.operOp.getButton(GamepadKeys.Button.RIGHT_BUMPER)) { //released the button
             o_rb = false;
         } else if (o_lb && !robot.operOp.getButton(GamepadKeys.Button.LEFT_BUMPER)) { //released the button

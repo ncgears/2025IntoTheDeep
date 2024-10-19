@@ -82,18 +82,18 @@ public class Constants {
             //distance = (double) robot distance from backstage (-1 if not used)
             ZERO(0,0.0,-1.0),
             START(0,0.0,-1.0),
-            TRANSPORT(725,0.0,-1.0),
-            SPECIMEN_LOW(1750,0.0,-1.0),
-            SPECIMEN_HIGH(2400,3.0,-1.0),
-            SPECIMEN_PICKUP(1000,3.0,-1.0),
-            SAMPLE_LOW(1950,4.25,0.0),
-            SAMPLE_HIGH(2600,4.5,0.0),
-            SAMPLE_PICKUP(0,10,0.0),
-            CLIMB_READY(3500,7.0,-1.0),
-            CLIMB_UP(3500,22,-1.0),
-            CLIMB_LIFT(3500,1.5,-1.0),
-            CLIMB_VERT(150, 1.5, -1.0),
-            LIMIT(4000,0,-1.0);
+            TRANSPORT(650,3.0,-1.0),
+            SPECIMEN_LOW(650,5.0,-1.0),
+            SPECIMEN_HIGH(1990,10.0,-1.0),
+            SPECIMEN_PICKUP(200,3.0,-1.0),
+            SAMPLE_LOW(650,4.25,-1.0),
+            SAMPLE_HIGH(7440,4.5,-1.0),
+            SAMPLE_PICKUP(0,5.0,-1.0),
+            CLIMB_READY(2820,20,-1.0),
+            CLIMB_UP(2820,20,-1.0),
+            CLIMB_LIFT(2820,20,-1.0),
+            CLIMB_VERT(2820, 20, -1.0),
+            LIMIT(8000,24,-1.0);
             final double tilt, elevator, distance;
             Positions(double tilt, double elevator, double distance) {
                 this.tilt = tilt;
@@ -109,15 +109,15 @@ public class Constants {
             public static double offsetStepSize = 90; //amount to change offset per request
             public static double homingSpeed = 0.1; //speed for homing to limit
             public static double targetThresholdTicks = 30; //how many encoder ticks is close enough
-            public static double minPower = 0.07; //minimum power cutoff to save battery
             public static double kF = 0.0; //0.0 //minimum power to move the motor
             public static double kP = 0.0015; //0.0015
             public static double kI = 0.0000010; //0.0000015
             public static double kIZone = 500.0; //I Zone for accumulating error
             public static double kD = 0.002; //0.002
             public static class limits {
-                public static double maxOutput = 0.75; //maximum output power
-                public static double minTicks = -5000.0; //Minimum encoder ticks of target (at limit sw)
+                public static double minOutput = 0.07; //minimum power cutoff to save battery
+                public static double maxOutput = 1.0; //maximum output power
+                public static double minTicks = 0.0; //Minimum encoder ticks of target (at limit sw)
                 public static double maxTicks = 9000.0; //Maximum encoder ticks of target (at limit sw)
             }
         }
@@ -132,17 +132,17 @@ public class Constants {
             public static double ticksPerInch = (ticksPerRev * gearReduction / drumCircumferenceInches) / 2; //2 stage elevator makes 2:1 reduction
             public static double targetThreshold = 0.2; //how many inches is close enough
             public static double targetThresholdTicks = 50; //targetThreshold * ticksPerInch;
-            public static double minPower = 0.05; //minimum power cutoff to save battery
             public static double kF = 0.0; //0.0 //minimum power to move the motor
             public static double kP = 0.0010; //0025
             public static double kI = 0.000004; //000002
             public static double kIZone = 2.0 * ticksPerInch; //I Zone for accumulating error
             public static double kD = 0.002; //002
             public static class limits {
+                public static double minOutput = 0.05; //minimum power cutoff to save battery
                 public static double maxOutput = 1.00; //maximum output power
                 public static double minLength = 0.0; //Minimum extended length of arm
                 public static double maxLength = 24.6; //Maximum extended length of arm
-                public static double maxTicks = 16100;
+                public static double maxTicks = 10000;
             }
         }
     }
