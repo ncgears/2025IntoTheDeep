@@ -23,16 +23,18 @@ import org.firstinspires.ftc.teamcode.StateMachines;
 @TeleOp(name="Mecanum Drive", group="JRB")
 public class teleopMecanum extends OpMode {
     hwMecanumFtclib robot = new hwMecanumFtclib(this);
+    OpMode opmode = this;
     StateMachine specimenMachine, sampleMachine, climbMachine;
     StateMachine globalMachine;
 
     ElapsedTime runtime = new ElapsedTime();
     ElapsedTime elapsed = new ElapsedTime();
-    Constants.Manipulator.Positions m_manip_pos = Constants.Manipulator.Positions.START;
+//    Constants.Manipulator.Positions m_manip_pos = Constants.Manipulator.Positions.START;
     Constants.Manipulator.Positions m_manip_prev_pos = Constants.Manipulator.Positions.START;
     boolean m_manip_momentary = false;
     Constants.Manipulator.Positions m_last_manip_pos = Constants.Manipulator.Positions.SPECIMEN_HIGH;
     boolean m_manip_manual = false;
+    boolean m_climbing = false;
     String m_last_command = Constants.Commands.NONE.toString();
     double m_last_command_time = 0.0;
     double m_turn_multiplier = 1.0;
@@ -43,8 +45,8 @@ public class teleopMecanum extends OpMode {
     double pid_turn_target = 0; //target degrees for pid turn
     boolean pid_turning = false; //tracking if we are using these pid controllers
     pidTurnControllerFtclib turnpid = new pidTurnControllerFtclib(this, pid_turn_target, Constants.Drivetrain.turnController.kP, Constants.Drivetrain.turnController.kI, Constants.Drivetrain.turnController.kD, Constants.Drivetrain.turnController.kF, Constants.Drivetrain.turnController.kIZone);
-    pidTiltController tiltpid = new pidTiltController(this, m_manip_pos.getTilt(), Constants.Manipulator.tiltController.kP, Constants.Manipulator.tiltController.kI, Constants.Manipulator.tiltController.kD, Constants.Manipulator.tiltController.kF, Constants.Manipulator.tiltController.kIZone);
-    pidElevatorController elevpid = new pidElevatorController(this, m_manip_pos.getElevator(), Constants.Manipulator.elevatorController.kP, Constants.Manipulator.elevatorController.kI, Constants.Manipulator.elevatorController.kD, Constants.Manipulator.elevatorController.kF, Constants.Manipulator.elevatorController.kIZone);
+    pidTiltController tiltpid = new pidTiltController(this, robot.getManipulatorPosition().getTilt(), Constants.Manipulator.tiltController.kP, Constants.Manipulator.tiltController.kI, Constants.Manipulator.tiltController.kD, Constants.Manipulator.tiltController.kF, Constants.Manipulator.tiltController.kIZone);
+    pidElevatorController elevpid = new pidElevatorController(this, robot.getManipulatorPosition().getElevator(), Constants.Manipulator.elevatorController.kP, Constants.Manipulator.elevatorController.kI, Constants.Manipulator.elevatorController.kD, Constants.Manipulator.elevatorController.kF, Constants.Manipulator.elevatorController.kIZone);
     boolean tilt_low_limit, tilt_high_limit = false;
 
     boolean d_a, d_b, d_x, d_y, d_lb, d_lt = false; //for debouncing driver button presses
@@ -68,44 +70,49 @@ public class teleopMecanum extends OpMode {
          * semi-automated tasks.  The IDLE state waits for conditions and starts other state
          * machines as needed.
          */
-        specimenMachine = StateMachines.getSpecimenPickupMachine(robot);
-        sampleMachine = StateMachines.getSamplePickupMachine(robot);
-        climbMachine = StateMachines.getClimbMachine(robot);
+        specimenMachine = StateMachines.getSpecimenPickupMachine(robot, opmode);
+        sampleMachine = StateMachines.getSamplePickupMachine(robot, opmode);
+        climbMachine = StateMachines.getClimbMachine(robot, opmode);
         globalMachine = new StateMachineBuilder()
             /* INIT prepares the manipulator as needed */
             .state(States.INIT)
-            .transition( () -> (true), States.IDLE)
+                .transition( () -> (true), States.IDLE)
             /* IDLE waits for transition conditions, defines buttons */
             .state(States.IDLE)
-            .transition(() -> robot.operOp.getButton(GamepadKeys.Button.X), States.SPECIMEN_PICKUP)
-            .transition(() -> robot.operOp.getButton(GamepadKeys.Button.B), States.SAMPLE_PICKUP)
+                .transition(() -> robot.operOp.getButton(GamepadKeys.Button.X), States.SPECIMEN_PICKUP)
+                .transition(() -> robot.operOp.getButton(GamepadKeys.Button.B), States.SAMPLE_PICKUP)
+                .transition(() -> !m_climbing && robot.driverOp.getButton(GamepadKeys.Button.DPAD_LEFT), States.CLIMB)
             /* SAMPLE_PICKUP starts the sample state machine */
             .state(States.SAMPLE_PICKUP)
-            .onEnter(sampleMachine::start)
-            .loop(sampleMachine::update)
-            .onExit( () -> {
-                sampleMachine.reset();
-                sampleMachine.stop();
-            })
-            .transition( () -> sampleMachine.getState() == StateMachines.SamplePickup.DONE, States.IDLE)
+                .onEnter(sampleMachine::start)
+                .loop(sampleMachine::update)
+                .onExit( () -> {
+                    sampleMachine.reset();
+                    sampleMachine.stop();
+                })
+                .transition( () -> sampleMachine.getState() == StateMachines.SamplePickup.DONE, States.IDLE)
             /* SPECIMEN_PICKUP starts the specimen state machine */
             .state(States.SPECIMEN_PICKUP)
-            .onEnter(specimenMachine::start)
-            .loop(specimenMachine::update)
-            .onExit( () -> {
-                specimenMachine.reset();
-                specimenMachine.stop();
-            })
-            .transition( () -> specimenMachine.getState() == StateMachines.SpecimenPickup.DONE, States.IDLE)
+                .onEnter(specimenMachine::start)
+                .loop(specimenMachine::update)
+                .onExit( () -> {
+                    specimenMachine.reset();
+                    specimenMachine.stop();
+                })
+                .transition( () -> specimenMachine.getState() == StateMachines.SpecimenPickup.DONE, States.IDLE)
             /* CLIMB starts the climbing state machine */
             .state(States.CLIMB)
-            .onEnter(climbMachine::start)
-            .loop(climbMachine::update)
-            .onExit( () -> {
-                climbMachine.reset();
-                climbMachine.stop();
-            })
-            .transition( () -> climbMachine.getState() == StateMachines.Climb.DONE, States.IDLE)
+                .onEnter(() -> {
+                    m_climbing = true;
+                    climbMachine.start();
+                })
+                .loop(climbMachine::update)
+                .onExit( () -> {
+                    m_climbing = false;
+                    climbMachine.reset();
+                    climbMachine.stop();
+                })
+                .transition( () -> climbMachine.getState() == StateMachines.Climb.DONE, States.IDLE)
             /* Build the state machine */
             .build();
     }
@@ -194,7 +201,7 @@ public class teleopMecanum extends OpMode {
             robot.playAudio("Reset Gyro", 500);
             telemCommand("RESET GYRO");
         } else if (robot.driverOp.getButton(GamepadKeys.Button.START)) {
-            m_manip_pos = Constants.Manipulator.Positions.START;
+            robot.setManipulatorPosition(Constants.Manipulator.Positions.START);
             m_manip_manual = true;
             try {
                 moveElevator(false);
@@ -248,23 +255,25 @@ public class teleopMecanum extends OpMode {
         }
 
         // automated field-relative turn functions for d-pad
-        if (robot.driverOp.getButton(GamepadKeys.Button.DPAD_LEFT) && !robot.driverOp.getButton(GamepadKeys.Button.DPAD_DOWN) && !robot.driverOp.getButton(GamepadKeys.Button.DPAD_UP)) {
-            //left, but not up or down
-            m_manip_pos = Constants.Manipulator.Positions.CLIMB_VERT;
-            telemCommand("CLIMB VERT");
+        if (robot.driverOp.getButton(GamepadKeys.Button.DPAD_UP) && !robot.driverOp.getButton(GamepadKeys.Button.DPAD_LEFT) && !robot.driverOp.getButton(GamepadKeys.Button.DPAD_RIGHT)) {
+            //up, but not left or right
+            robot.setManipulatorPosition(Constants.Manipulator.Positions.CLIMB_READY);
+            telemCommand("CLIMB READY");
         } else if (robot.driverOp.getButton(GamepadKeys.Button.DPAD_RIGHT) && !robot.driverOp.getButton(GamepadKeys.Button.DPAD_DOWN) && !robot.driverOp.getButton(GamepadKeys.Button.DPAD_UP)) {
             //right, but not up or down
-            m_manip_pos = Constants.Manipulator.Positions.CLIMB_UP;
-            telemCommand("CLIMB READY");
-        } else if (robot.driverOp.getButton(GamepadKeys.Button.DPAD_UP) && !robot.driverOp.getButton(GamepadKeys.Button.DPAD_LEFT) && !robot.driverOp.getButton(GamepadKeys.Button.DPAD_RIGHT)) {
-            //up, but not left or right
-            m_manip_pos = Constants.Manipulator.Positions.CLIMB_READY;
+            robot.setManipulatorPosition(Constants.Manipulator.Positions.CLIMB_UP);
             telemCommand("CLIMB READY");
         } else if (robot.driverOp.getButton(GamepadKeys.Button.DPAD_DOWN) && !robot.driverOp.getButton(GamepadKeys.Button.DPAD_LEFT) && !robot.driverOp.getButton(GamepadKeys.Button.DPAD_RIGHT)) {
             //down, but not left or right
-            m_manip_pos = Constants.Manipulator.Positions.CLIMB_LIFT;
+            robot.setManipulatorPosition(Constants.Manipulator.Positions.CLIMB_LIFT);
             telemCommand("CLIMB LIFT");
         }
+        /* else if (robot.driverOp.getButton(GamepadKeys.Button.DPAD_UP) && !robot.driverOp.getButton(GamepadKeys.Button.DPAD_LEFT) && !robot.driverOp.getButton(GamepadKeys.Button.DPAD_RIGHT)) {
+            //up, but not left or right
+            m_manip_pos = Constants.Manipulator.Positions.CLIMB_READY;
+            telemCommand("CLIMB READY");
+        }
+        */
         /* End Driver Controls */
 
         /* Operator Controls */
@@ -279,21 +288,23 @@ public class teleopMecanum extends OpMode {
         }
         if (robot.operOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) < 0.5 && m_manip_manual) { //release manual control button
             m_manip_manual = false;
+            elevpid.setTarget(robot.getElevatorPosition());
+            tiltpid.setTarget(robot.getTiltPosition());
             telemCommand("PID MANIP");
         } else if (robot.operOp.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) >= 0.5 && !m_manip_manual) { //press manual control button
             m_manip_manual = true;
             telemCommand("MANUAL MANIP");
         } else if (!o_rb && robot.operOp.getButton(GamepadKeys.Button.RIGHT_BUMPER)) { //position up
             o_rb = true;
-            switch (m_manip_pos) {
+            switch (robot.getManipulatorPosition()) {
                 case SAMPLE_LOW:
-                    m_manip_pos = Constants.Manipulator.Positions.SAMPLE_HIGH;
-                    m_last_manip_pos = m_manip_pos;
+                    robot.setManipulatorPosition(Constants.Manipulator.Positions.SAMPLE_HIGH);
+                    m_last_manip_pos = robot.getManipulatorPosition();
                     telemCommand("SAMPLE HIGH");
                     break;
                 case SPECIMEN_LOW:
-                    m_manip_pos = Constants.Manipulator.Positions.SPECIMEN_HIGH;
-                    m_last_manip_pos = m_manip_pos;
+                    robot.setManipulatorPosition(Constants.Manipulator.Positions.SPECIMEN_HIGH);
+                    m_last_manip_pos = robot.getManipulatorPosition();
                     telemCommand("SPECIMEN HIGH");
                     break;
                 default:
@@ -301,34 +312,34 @@ public class teleopMecanum extends OpMode {
             }
         } else if (!o_lb && robot.operOp.getButton(GamepadKeys.Button.LEFT_BUMPER)) { //position down
             o_lb = true;
-            switch (m_manip_pos) {
+            switch (robot.getManipulatorPosition()) {
                 case SAMPLE_HIGH:
-                    m_manip_pos = Constants.Manipulator.Positions.SAMPLE_LOW;
-                    m_last_manip_pos = m_manip_pos;
+                    robot.setManipulatorPosition(Constants.Manipulator.Positions.SAMPLE_LOW);
+                    m_last_manip_pos = robot.getManipulatorPosition();
                     telemCommand("SAMPLE LOW");
                     break;
                 case SPECIMEN_HIGH:
-                    m_manip_pos = Constants.Manipulator.Positions.SPECIMEN_LOW;
-                    m_last_manip_pos = m_manip_pos;
+                    robot.setManipulatorPosition(Constants.Manipulator.Positions.SPECIMEN_LOW);
+                    m_last_manip_pos = robot.getManipulatorPosition();
                     telemCommand("SPECIMEN LOW");
                     break;
                 default:
 //                    telemCommand("NOTHING");
             }
         } else if (robot.operOp.getButton(GamepadKeys.Button.Y)) { //specimen high
-            m_manip_pos = Constants.Manipulator.Positions.SPECIMEN_HIGH;
+            robot.setManipulatorPosition(Constants.Manipulator.Positions.SPECIMEN_HIGH);
             telemCommand("SPECIMEN HIGH");
         } else if (robot.operOp.getButton(GamepadKeys.Button.X)) { //transport
-            m_manip_pos = Constants.Manipulator.Positions.TRANSPORT;
+            robot.setManipulatorPosition(Constants.Manipulator.Positions.TRANSPORT);
             telemCommand("TRANSPORT POSITION");
         } else if (robot.operOp.getButton(GamepadKeys.Button.A)) { //sample pickup
-            m_manip_pos = Constants.Manipulator.Positions.SAMPLE_PICKUP;
+            robot.setManipulatorPosition(Constants.Manipulator.Positions.SAMPLE_PICKUP);
             telemCommand("SAMPLE PICKUP");
         } else if (robot.operOp.getButton(GamepadKeys.Button.B)) { //specimen pickup
-            m_manip_pos = Constants.Manipulator.Positions.SPECIMEN_PICKUP;
+            robot.setManipulatorPosition(Constants.Manipulator.Positions.SPECIMEN_PICKUP);
             telemCommand("SPECIMEN PICKUP");
         } else if (robot.operOp.getButton(GamepadKeys.Button.START)) { //sample high
-            m_manip_pos = Constants.Manipulator.Positions.SAMPLE_HIGH;
+            robot.setManipulatorPosition(Constants.Manipulator.Positions.SAMPLE_HIGH);
             telemCommand("SAMPLE HIGH");
         } else if (o_rb && !robot.operOp.getButton(GamepadKeys.Button.RIGHT_BUMPER)) { //released the button
             o_rb = false;
@@ -448,7 +459,7 @@ public class teleopMecanum extends OpMode {
                 tiltpid.setTarget(robot.getTiltPosition());
                 tilt_high_limit = false;
             } else {
-                tiltpid.setTargetPosition(m_manip_pos);
+                tiltpid.setTargetPosition(robot.getManipulatorPosition());
             }
             double power = tiltpid.update(robot.getTiltPosition());
             if (power < 0 && robot.getTiltLowLimit()) {
@@ -459,13 +470,14 @@ public class teleopMecanum extends OpMode {
                 tiltpid.setTarget(robot.getTiltPosition());
                 tilt_high_limit = true;
             }
+            robot.m_tilt_atTarget = tiltpid.atTarget();
             robot.setTiltPower(power);
         }
     }
 
     public double getElevatorManualPower() {
         //get requested power from oper stick
-        double power = stickDeadband(robot.operOp.getLeftY()) * 1.0; //non-inverted
+        double power = stickDeadband(robot.operOp.getLeftY()); //non-inverted
         /* this is handled in setPower
         //prevent moving if we are at limits
         if(power < 0 && robot.getElevatorLowLimit()) power = 0;
@@ -482,8 +494,9 @@ public class teleopMecanum extends OpMode {
             //when we stop asking for movement, save the target
             //if(power == 0) elevpid.setTarget(robot.getElevatorPosition());
         } else {
-            elevpid.setTargetPosition(m_manip_pos);
+            elevpid.setTargetPosition(robot.getManipulatorPosition());
             double power = elevpid.update(robot.getElevatorPosition());
+            robot.m_elev_atTarget = elevpid.atTarget();
             robot.setElevatorPower(power);
         }
     }
@@ -498,7 +511,8 @@ public class teleopMecanum extends OpMode {
         telemetry.addData("Robot State", globalMachine.getState().toString());
         telemetry.addData("Specimen Pickup State", specimenMachine.getState().toString());
         telemetry.addData("Sample Pickup State", sampleMachine.getState().toString());
-        telemetry.addData("Manipulator Position", m_manip_pos.toString());
+        telemetry.addData("Climb State", climbMachine.getState().toString());
+        telemetry.addData("Manipulator Position", robot.getManipulatorPosition().toString());
         telemetry.addData("Scoop", "up=%s, full=%s",robot.getScoopUpString(), robot.getScoopFullString());
         if(!Constants.Intake.disabled) {
             telemetry.addData("Intake Direction", robot.getIntakeDirection().toString());

@@ -90,8 +90,8 @@ public class Constants {
             SAMPLE_HIGH(7440,8300,-1.0),
             SAMPLE_PICKUP(0,1280,-1.0),
             CLIMB_READY(2820,6660,-1.0),
-            CLIMB_UP(2820,5000,-1.0),
-            CLIMB_LIFT(5000,6660,-1.0),
+            CLIMB_UP(2820,4800,-1.0),
+            CLIMB_LIFT(3360,1287,-1.0),
             LIMIT(8000,8000,-1.0);
             final double tilt, elevator, distance;
             Positions(double tilt, double elevator, double distance) {

@@ -89,6 +89,8 @@ public class hwMecanumFtclib {
     public Motor m_tilt_motor, m_elev_motor = null;
     public DigitalChannel m_tilt_lim_low, m_tilt_lim_high, m_elev_lim_low, m_elev_lim_high = null;
     public DigitalChannel m_scoop_up, m_scoop_full = null;
+    public Constants.Manipulator.Positions m_manip_pos = Constants.Manipulator.Positions.ZERO;
+    public boolean m_elev_atTarget, m_tilt_atTarget = true;
 
     // Intake related stuff
     public Constants.Intake.Directions m_intake_direction = Constants.Intake.Directions.STOP;
@@ -387,6 +389,13 @@ public class hwMecanumFtclib {
     public Constants.Intake.Directions getIntakeDirection() {
         return m_intake_direction;
     }
+
+    // Manipulator Methods
+    public void setManipulatorPosition(Constants.Manipulator.Positions position) { m_manip_pos = position; }
+    public Constants.Manipulator.Positions getManipulatorPosition() { return m_manip_pos; }
+    public boolean getManipulatorAtTarget() { return getTiltAtTarget() && getElevAtTarget(); }
+    public boolean getTiltAtTarget() { return m_tilt_atTarget; }
+    public boolean getElevAtTarget() { return m_elev_atTarget; }
 
     // Distance Sensor Methods
     public double getDistance() {
