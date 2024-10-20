@@ -65,6 +65,7 @@ public class StateMachines {
 
     public enum Climb {
         IDLE,
+        EXTEND,
         READY,
         HOOK,
         LIFT,
@@ -74,6 +75,12 @@ public class StateMachines {
         return new StateMachineBuilder()
             .state(Climb.IDLE)
                 .transitionTimed(0.25)
+            .state(Climb.EXTEND)
+                .onEnter( () -> {
+                    elapsed.reset();
+                    robot.setManipulatorPosition(Constants.Manipulator.Positions.CLIMB_EXTEND);
+                })
+                .transition( () -> elapsed.seconds() >= 1.0 && robot.getManipulatorAtTarget())
             .state(Climb.READY)
                 .onEnter( () -> {
                     elapsed.reset();
