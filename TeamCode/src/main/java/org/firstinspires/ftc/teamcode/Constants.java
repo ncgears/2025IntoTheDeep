@@ -87,12 +87,13 @@ public class Constants {
             SPECIMEN_HIGH(1990,3860,-1.0),
             SPECIMEN_PICKUP(200,200,-1.0),
             SAMPLE_LOW(650,3400,-1.0),
-            SAMPLE_HIGH(7440,8300,-1.0),
+            SAMPLE_HIGH(3750,8300,-1.0),
             SAMPLE_PICKUP(0,1280,-1.0),
+            CLIMB_EXTEND(2400,6660,-1.0),
             CLIMB_READY(2820,6660,-1.0),
             CLIMB_UP(2820,4800,-1.0),
             CLIMB_LIFT(3360,1287,-1.0),
-            LIMIT(8000,8000,-1.0);
+            LIMIT(3800,8450,-1.0);
             final double tilt, elevator, distance;
             Positions(double tilt, double elevator, double distance) {
                 this.tilt = tilt;
@@ -129,14 +130,13 @@ public class Constants {
             public static double drumDiamInches = 1.3;
             public static double drumCircumferenceInches = drumDiamInches * Math.PI;
             public static double ticksPerInch = (ticksPerRev * gearReduction / drumCircumferenceInches) / 2; //2 stage elevator makes 2:1 reduction
-            public static double targetThreshold = 0.2; //how many inches is close enough
-            public static double targetThresholdTicks = 50; //targetThreshold * ticksPerInch;
+            public static double targetThresholdTicks = 30; //targetThreshold * ticksPerInch;
             public static boolean useInches = false; //elevator positions are in inches
             public static double kF = 0.0; //0.0 //minimum power to move the motor
-            public static double kP = 0.0010; //0025
-            public static double kI = 0.000004; //000002
+            public static double kP = 0.0025; //0.0010
+            public static double kI = 0.000008; //0.000004
             public static double kIZone = 2.0 * ticksPerInch; //I Zone for accumulating error
-            public static double kD = 0.002; //002
+            public static double kD = 0.002; //0.002
             public static class limits {
                 public static double minOutput = 0.05; //minimum power cutoff to save battery
                 public static double maxOutput = 1.00; //maximum output power
