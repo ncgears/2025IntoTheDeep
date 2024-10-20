@@ -81,6 +81,7 @@ public class Constants {
             //elevator = (double) length of the elevator, in inches (if useInches) or ticks
             //distance = (double) robot distance from backstage (-1 if not used)
             ZERO(0,0,-1.0),
+            MANUAL(0,0,-1),
             START(0,0,-1.0),
             TRANSPORT(650,1280,-1.0),
             SPECIMEN_LOW(650,1280,-1.0),

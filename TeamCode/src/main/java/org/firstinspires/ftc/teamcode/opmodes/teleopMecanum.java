@@ -448,9 +448,15 @@ public class teleopMecanum extends OpMode {
     public void moveTilt(boolean manual) {
         if(Constants.Manipulator.tiltController.disabled) return;
         if(manual) {
+            robot.setManipulatorPosition(Constants.Manipulator.Positions.MANUAL);
             //move the tilt
-            robot.setTiltPower(getTiltManualPower());
-            tiltpid.setTarget(robot.getTiltPosition());
+            double power = getTiltManualPower();
+            if(power==0) {
+                power = tiltpid.update(robot.getTiltPosition());
+            } else {
+                tiltpid.setTarget(robot.getTiltPosition());
+            }
+            robot.setTiltPower(power);
         } else {
             if (tilt_low_limit) {
                 tiltpid.setTarget(robot.getTiltPosition());
@@ -491,8 +497,8 @@ public class teleopMecanum extends OpMode {
         if(manual) {
             //move the elevator
             robot.setElevatorPower(getElevatorManualPower());
-            //when we stop asking for movement, save the target
-            //if(power == 0) elevpid.setTarget(robot.getElevatorPosition());
+            robot.setManipulatorPosition(Constants.Manipulator.Positions.MANUAL);
+            elevpid.setTarget(robot.getElevatorPosition());
         } else {
             elevpid.setTargetPosition(robot.getManipulatorPosition());
             double power = elevpid.update(robot.getElevatorPosition());

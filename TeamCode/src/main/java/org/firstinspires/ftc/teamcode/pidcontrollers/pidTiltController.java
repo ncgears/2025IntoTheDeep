@@ -66,6 +66,7 @@ public class pidTiltController {
     }
 
     public void setTargetPosition(Constants.Manipulator.Positions position) {
+        if(position==Constants.Manipulator.Positions.MANUAL) return;
         setTarget(position.getTilt());
     }
 
