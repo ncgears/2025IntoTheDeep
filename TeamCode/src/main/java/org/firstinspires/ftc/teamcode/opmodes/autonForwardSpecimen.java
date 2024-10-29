@@ -15,10 +15,10 @@ import org.firstinspires.ftc.teamcode.pidcontrollers.pidTiltController;
 import org.firstinspires.ftc.teamcode.pidcontrollers.pidTurnControllerFtclib;
 
 @SuppressWarnings({"unused"})
-@Autonomous(name="Straight Specimen Auton", group="JRB")
+@Autonomous(name="Specimen Forward Auton", group="JRB")
 //@Disabled
 public class
-autonStaightSpecimen extends OpMode {
+autonForwardSpecimen extends OpMode {
     boolean m_long_auton = false; //set true if this is the long auton
     hwMecanumFtclib robot = new hwMecanumFtclib(this);
     ElapsedTime runtime = new ElapsedTime();
@@ -49,10 +49,10 @@ autonStaightSpecimen extends OpMode {
         INIT_GYRO, //Set the gyro for proper starting configuration
         DETERMINE_TEAM, //Determine Alliance and set robot.alliance
         MANIP_TRANSPORT1, //Move manipulator to transport
-        MANIP_SUB_SPECIMEN_HIGH, //Move manipulator to high specimen bar
-        DRIVE_SUB_SPECIMEN_HIGH, //Drive to the submersible high specimen bar
-        MANIP_SUB_SPECIMEN_LOW, //Move manipulator to low specimen bar
-        DRIVE_SUB_SPECIMENT_LOW, //Drive to the submersible low specimen bar
+        MANIP_SPECIMEN_HIGH, //Move manipulator to high specimen bar
+        DRIVE_SPECIMEN_HIGH, //Drive to the submersible high specimen bar
+        MANIP_SPECIMEN_LOW, //Move manipulator to low specimen bar
+        DRIVE_SPECIMEN_LOW, //Drive to the submersible low specimen bar
         MANIP_TRANSPORT2, //Move manipulator to transport
         RESTING //Doing nothing
     }
@@ -66,7 +66,7 @@ autonStaightSpecimen extends OpMode {
                 /* Setup the starting position of the robot */
                 .state(States.INIT_GYRO)
                     .onEnter( () -> {
-                        robot.setYawOffset(0.0); //start pointed away from drivers
+                        robot.setYawOffset(-180.0); //start pointed away from drivers
                     })
                     .transition( () -> (true))
                 /* Identify which alliance we are */
@@ -87,17 +87,17 @@ autonStaightSpecimen extends OpMode {
                     })
                     .transition(() -> (true))
                 /* Move manipulator to specimen high position */
-                .state(States.MANIP_SUB_SPECIMEN_HIGH)
+                .state(States.MANIP_SPECIMEN_HIGH)
                     .onEnter( () -> {
                         robot.setManipulatorPosition(Constants.Manipulator.Positions.SPECIMEN_HIGH);
                     })
                     .transition(() -> (true))
                 /* Drive to the high specimen bar */
-                .state(States.DRIVE_SUB_SPECIMEN_HIGH)
+                .state(States.DRIVE_SPECIMEN_HIGH)
                     .onEnter( () -> {
                         elapsed.reset();
 
-                        double distance = 22;
+                        double distance = 24;
                         driveInchesPID(distance);
                     })
                     .onExit( () -> {
