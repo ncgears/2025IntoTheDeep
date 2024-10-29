@@ -83,18 +83,18 @@ public class Constants {
             ZERO(0,0,-1.0),
             MANUAL(0,0,-1),
             START(0,0,-1.0),
-            TRANSPORT(650,1280,-1.0),
-            SPECIMEN_LOW(650,1280,-1.0),
-            SPECIMEN_HIGH(1990,3860,-1.0),
-            SPECIMEN_PICKUP(200,200,-1.0),
-            SAMPLE_LOW(650,3400,-1.0),
-            SAMPLE_HIGH(3750,8300,-1.0),
-            SAMPLE_PICKUP(0,1280,-1.0),
-            CLIMB_EXTEND(2400,6660,-1.0),
-            CLIMB_READY(2820,6660,-1.0),
-            CLIMB_UP(2820,4800,-1.0),
-            CLIMB_LIFT(3360,1287,-1.0),
-            LIMIT(3800,8450,-1.0);
+            TRANSPORT(1352,615,-1.0), //650,1280
+            SPECIMEN_LOW(1352,615,-1.0), //650,1280
+            SPECIMEN_HIGH(4139,1852,-1.0), //1990,3860
+            SPECIMEN_PICKUP(416,96,-1.0), //200,200
+            SAMPLE_LOW(1352,1632,-1.0), //650,3400
+            SAMPLE_HIGH(7800,3984,-1.0), //3750,8300
+            SAMPLE_PICKUP(0,615,-1.0), //0,1280
+            CLIMB_EXTEND(4992,3196,-1.0), //2400,6660
+            CLIMB_READY(5865,3196,-1.0), //2820,6660
+            CLIMB_UP(5865,2300,-1.0), //2820,4800
+            CLIMB_LIFT(6988,615,-1.0), //3360,1287
+            LIMIT(7904,4056,-1.0); //3800,8450
             final double tilt, elevator, distance;
             Positions(double tilt, double elevator, double distance) {
                 this.tilt = tilt;
