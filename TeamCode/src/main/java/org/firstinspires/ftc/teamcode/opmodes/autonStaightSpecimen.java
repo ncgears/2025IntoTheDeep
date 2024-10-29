@@ -46,6 +46,7 @@ autonStaightSpecimen extends OpMode {
 
     // States for the finite state machine
     enum States {
+        INIT_GYRO, //Set the gyro for proper starting configuration
         DETERMINE_TEAM, //Determine Alliance and set robot.alliance
         MANIP_TRANSPORT1, //Move manipulator to transport
         MANIP_SUB_SPECIMEN_HIGH, //Move manipulator to high specimen bar
@@ -62,55 +63,61 @@ autonStaightSpecimen extends OpMode {
         robot.init(hardwareMap);
 
         machine = new StateMachineBuilder()
+                /* Setup the starting position of the robot */
+                .state(States.INIT_GYRO)
+                    .onEnter( () -> {
+                        robot.setYawOffset(0.0); //start pointed away from drivers
+                    })
+                    .transition( () -> (true))
                 /* Identify which alliance we are */
                 .state(States.DETERMINE_TEAM)
-                .onEnter( () -> {
-                    if(robot.alliance == Constants.Alliance.NONE) runCommand(Constants.Commands.DETERMINE_TEAM);
-                })
-                .onExit( () -> {
-                    m_turn_multiplier = (robot.alliance == Constants.Alliance.RED) ? -1.0 : 1.0; //If red alliance, turns are reversed
-                    robot.playAudio(String.format("%s", robot.alliance.toString()),500);
-                })
-//                .transitionWithPointerState( () -> (robot.alliance != Constants.Alliance.NONE), States.STRAFE_CLEAR)
-                .transition( () -> (robot.alliance != Constants.Alliance.NONE))
+                    .onEnter( () -> {
+                        if(robot.alliance == Constants.Alliance.NONE) runCommand(Constants.Commands.DETERMINE_TEAM);
+                    })
+                    .onExit( () -> {
+//                        m_turn_multiplier = (robot.alliance == Constants.Alliance.RED) ? -1.0 : 1.0; //If red alliance, turns are reversed
+                        robot.playAudio(String.format("%s", robot.alliance.toString()),500);
+                    })
+//                    .transitionWithPointerState( () -> (robot.alliance != Constants.Alliance.NONE), States.STRAFE_CLEAR)
+                    .transition( () -> (robot.alliance != Constants.Alliance.NONE))
                 /* Move manipulator to transport position */
                 .state(States.MANIP_TRANSPORT1)
-                .onEnter( () -> {
-                    m_manip_pos = Constants.Manipulator.Positions.TRANSPORT;
-                })
-                .transition(() -> (true))
+                    .onEnter( () -> {
+                        robot.setManipulatorPosition(Constants.Manipulator.Positions.TRANSPORT);
+                    })
+                    .transition(() -> (true))
                 /* Move manipulator to specimen high position */
                 .state(States.MANIP_SUB_SPECIMEN_HIGH)
-                .onEnter( () -> {
-                    m_manip_pos = Constants.Manipulator.Positions.SPECIMEN_HIGH;
-                })
-                .transition(() -> (true))
+                    .onEnter( () -> {
+                        robot.setManipulatorPosition(Constants.Manipulator.Positions.SPECIMEN_HIGH);
+                    })
+                    .transition(() -> (true))
                 /* Drive to the high specimen bar */
                 .state(States.DRIVE_SUB_SPECIMEN_HIGH)
-                .onEnter( () -> {
-                    elapsed.reset();
+                    .onEnter( () -> {
+                        elapsed.reset();
 
-                    double distance = 22;
-                    driveInchesPID(distance);
-                })
-                .onExit( () -> {
-                    pid_driving = false;
-                })
-                .transition( () -> (pid_driving && drivepid.atTarget()) )
+                        double distance = 22;
+                        driveInchesPID(distance);
+                    })
+                    .onExit( () -> {
+                        pid_driving = false;
+                    })
+                    .transition( () -> (pid_driving && drivepid.atTarget()) )
                 /* Move manipulator to transport position */
-                .state(States.MANIP_TRANSPORT2)
-                .onEnter( () -> {
-                    m_manip_pos = Constants.Manipulator.Positions.TRANSPORT;
-                })
-                .transition(() -> (true))
+//                .state(States.MANIP_TRANSPORT2)
+//                    .onEnter( () -> {
+//                        robot.setManipulatorPosition(Constants.Manipulator.Positions.TRANSPORT);
+//                    })
+//                    .transition(() -> (true))
                 /* Wait until end of auton */
                 .state(States.RESTING)
-                .onEnter( () -> {
-                    pid_driving = false;
-                    pid_turning = false;
-                    strafing = false;
-                    robot.playAudio("Resting",500);
-                })
+                    .onEnter( () -> {
+                        pid_driving = false;
+                        pid_turning = false;
+                        strafing = false;
+                        robot.playAudio("Resting",500);
+                    })
                 .build();
     }
 
