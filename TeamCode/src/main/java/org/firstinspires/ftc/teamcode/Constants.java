@@ -14,7 +14,7 @@ public class Constants {
         public static boolean autonDriveStraight = true;
     }
     public static class Drivetrain {
-        public static double defaultYawOffset = 0.0; //change default yaw offsey for gyro
+        public static double defaultYawOffset = -180.0; //change default yaw offsey for gyro
         public static boolean useFieldCentric = true; //try to use FC if gyro has value
         public static boolean useDriveStraight = false; //use DriveStraight correction
         public static boolean useInputSquaring = true; //use input squaring for better low end control
