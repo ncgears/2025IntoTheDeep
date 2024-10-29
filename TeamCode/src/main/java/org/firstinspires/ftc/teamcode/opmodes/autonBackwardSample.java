@@ -89,6 +89,7 @@ autonBackwardSample extends OpMode {
                 /* Move manipulator to specimen high position */
                 .state(States.MANIP_SAMPLE_HIGH)
                     .onEnter( () -> {
+                        elapsed.reset();
                         robot.setManipulatorPosition(Constants.Manipulator.Positions.SAMPLE_HIGH);
                     })
                     .transition(() -> (elapsed.seconds() >= 1.0 && robot.getManipulatorAtTarget()))
@@ -96,7 +97,6 @@ autonBackwardSample extends OpMode {
                 .state(States.DRIVE_SAMPLE_HIGH)
                     .onEnter( () -> {
                         elapsed.reset();
-
                         double distance = 10;
                         driveInchesPID(distance);
                     })

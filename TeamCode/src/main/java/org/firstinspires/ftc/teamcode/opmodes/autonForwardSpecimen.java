@@ -80,22 +80,22 @@ autonForwardSpecimen extends OpMode {
                     })
                     .transition( () -> (true))
                 /* Move manipulator to transport position */
-                .state(States.MANIP_TRANSPORT1)
-                    .onEnter( () -> {
-                        robot.setManipulatorPosition(Constants.Manipulator.Positions.TRANSPORT);
-                    })
-                    .transition(() -> (true))
+//                .state(States.MANIP_TRANSPORT1)
+//                    .onEnter( () -> {
+//                        robot.setManipulatorPosition(Constants.Manipulator.Positions.TRANSPORT);
+//                    })
+//                    .transition(() -> (true))
                 /* Move manipulator to specimen high position */
                 .state(States.MANIP_SPECIMEN_HIGH)
                     .onEnter( () -> {
+                        elapsed.reset();
                         robot.setManipulatorPosition(Constants.Manipulator.Positions.SPECIMEN_HIGH);
                     })
-                    .transition(() -> (true))
+                    .transition(() -> (elapsed.seconds() >= 1.0 && robot.getManipulatorAtTarget()))
                 /* Drive to the high specimen bar */
                 .state(States.DRIVE_SPECIMEN_HIGH)
                     .onEnter( () -> {
                         elapsed.reset();
-
                         double distance = 24;
                         driveInchesPID(distance);
                     })
