@@ -53,6 +53,7 @@ autonBackwardSample extends OpMode {
         DRIVE_SAMPLE_HIGH, //Drive to the high sample
         MANIP_SAMPLE_LOW, //Move manipulator to low sample
         DRIVE_SAMPLE_LOW, //Drive to the low sample
+        MANIP_OUTTAKE, //Outtake the sample
         MANIP_TRANSPORT2, //Move manipulator to transport
         RESTING //Doing nothing
     }
@@ -104,6 +105,16 @@ autonBackwardSample extends OpMode {
                         pid_driving = false;
                     })
                     .transition( () -> (pid_driving && drivepid.atTarget()) )
+                /* Outtake the sample */
+                .state(States.MANIP_OUTTAKE)
+                    .onEnter( () -> {
+                        elapsed.reset();
+                        robot.setIntakeDirection(Constants.Intake.Directions.OUT);
+                    })
+                    .onExit( () -> {
+                        robot.setIntakeDirection(Constants.Intake.Directions.STOP);
+                    })
+                    .transition(() -> elapsed.seconds() >= 5.0)
                 /* Move manipulator to transport position */
 //                .state(States.MANIP_TRANSPORT2)
 //                    .onEnter( () -> {
