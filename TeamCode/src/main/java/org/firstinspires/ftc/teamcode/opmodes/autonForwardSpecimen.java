@@ -24,7 +24,6 @@ autonForwardSpecimen extends OpMode {
     ElapsedTime runtime = new ElapsedTime();
     ElapsedTime elapsed = new ElapsedTime();
     StateMachine machine = null;
-    Constants.Manipulator.Positions m_manip_pos = Constants.Manipulator.Positions.START;
     Constants.Commands m_last_command = Constants.Commands.NONE;
     double m_last_command_time = 0.0;
     double m_turn_multiplier = 1.0;
@@ -35,8 +34,8 @@ autonForwardSpecimen extends OpMode {
     boolean pid_driving, pid_turning = false; //tracking if we are using these pid controllers
     pidDriveControllerFtclib drivepid = new pidDriveControllerFtclib(this, pid_drive_target, Constants.Drivetrain.driveController.kP, Constants.Drivetrain.driveController.kI, Constants.Drivetrain.driveController.kD, Constants.Drivetrain.driveController.kF, Constants.Drivetrain.driveController.kIZone);
     pidTurnControllerFtclib turnpid = new pidTurnControllerFtclib(this, pid_turn_target, Constants.Drivetrain.turnController.kP, Constants.Drivetrain.turnController.kI, Constants.Drivetrain.turnController.kD, Constants.Drivetrain.turnController.kF, Constants.Drivetrain.turnController.kIZone);
-    pidTiltController tiltpid = new pidTiltController(this, m_manip_pos.getTilt(), Constants.Manipulator.tiltController.kP, Constants.Manipulator.tiltController.kI, Constants.Manipulator.tiltController.kD, Constants.Manipulator.tiltController.kF, Constants.Manipulator.tiltController.kIZone);
-    pidElevatorController elevpid = new pidElevatorController(this, m_manip_pos.getElevator(), Constants.Manipulator.elevatorController.kP, Constants.Manipulator.elevatorController.kI, Constants.Manipulator.elevatorController.kD, Constants.Manipulator.elevatorController.kF, Constants.Manipulator.elevatorController.kIZone);
+    pidTiltController tiltpid = new pidTiltController(this, robot.getManipulatorPosition().getTilt(), Constants.Manipulator.tiltController.kP, Constants.Manipulator.tiltController.kI, Constants.Manipulator.tiltController.kD, Constants.Manipulator.tiltController.kF, Constants.Manipulator.tiltController.kIZone);
+    pidElevatorController elevpid = new pidElevatorController(this, robot.getManipulatorPosition().getElevator(), Constants.Manipulator.elevatorController.kP, Constants.Manipulator.elevatorController.kI, Constants.Manipulator.elevatorController.kD, Constants.Manipulator.elevatorController.kF, Constants.Manipulator.elevatorController.kIZone);
 
     boolean strafing = false;
 
@@ -63,12 +62,6 @@ autonForwardSpecimen extends OpMode {
         robot.init(hardwareMap);
 
         machine = new StateMachineBuilder()
-                /* Setup the starting position of the robot */
-                .state(States.INIT_GYRO)
-                    .onEnter( () -> {
-                        robot.setYawOffset(-180.0); //start pointed away from drivers
-                    })
-                    .transition( () -> (true))
                 /* Identify which alliance we are */
                 .state(States.DETERMINE_TEAM)
                     .onEnter( () -> {
@@ -80,6 +73,12 @@ autonForwardSpecimen extends OpMode {
                     })
 //                    .transitionWithPointerState( () -> (robot.alliance != Constants.Alliance.NONE), States.STRAFE_CLEAR)
                     .transition( () -> (robot.alliance != Constants.Alliance.NONE))
+                /* Setup the starting position of the robot */
+                .state(States.INIT_GYRO)
+                    .onEnter( () -> {
+                        robot.setYawOffset(0.0); //start pointed away from drivers
+                    })
+                    .transition( () -> (true))
                 /* Move manipulator to transport position */
                 .state(States.MANIP_TRANSPORT1)
                     .onEnter( () -> {
@@ -103,7 +102,7 @@ autonForwardSpecimen extends OpMode {
                     .onExit( () -> {
                         pid_driving = false;
                     })
-                    .transition( () -> (pid_driving && drivepid.atTarget()) )
+                    .transition( () -> (elapsed.seconds() >= 1.0 && pid_driving && drivepid.atTarget()) )
                 /* Move manipulator to transport position */
 //                .state(States.MANIP_TRANSPORT2)
 //                    .onEnter( () -> {
@@ -230,13 +229,17 @@ autonForwardSpecimen extends OpMode {
     }
 
     public void moveTilt() {
-        tiltpid.setTargetPosition(m_manip_pos);
+        if(Constants.Manipulator.tiltController.disabled) return;
+        tiltpid.setTargetPosition(robot.getManipulatorPosition());
+        robot.m_tilt_atTarget = tiltpid.atTarget();
         double power = tiltpid.update(robot.getTiltPosition());
         robot.setTiltPower(power);
     }
 
     public void moveElevator() {
-        elevpid.setTargetPosition(m_manip_pos);
+        if(Constants.Manipulator.elevatorController.disabled) return;
+        elevpid.setTargetPosition(robot.getManipulatorPosition());
+        robot.m_elev_atTarget = elevpid.atTarget();
         double power = elevpid.update(robot.getElevatorPosition());
         robot.setElevatorPower(power);
     }
@@ -246,11 +249,24 @@ autonForwardSpecimen extends OpMode {
         telemetry.addData("Last Command", m_last_command.toString());
         telemetry.addData("Robot Heading", "%.2f", robot.getRobotYaw());
         telemetry.addData("Obstacle Distance", "%.2f Inches", robot.getDistance());
-        telemetry.addData("Manipulator Position", m_manip_pos.toString());
+        telemetry.addData("Manipulator Position", robot.getManipulatorPosition().toString());
         telemetry.addData("Auton State", machine.getState().toString());
         robot.getDriveAvgPosition(); //put the encoder data on the telem
-        telemetry.addData("Tilt", "lim=%s, tgt=%.0f, pos=%d, pwr=%.2f", robot.getTiltLimitString(), tiltpid.getTarget(), robot.getTiltPosition(), robot.getTiltPower());
-        telemetry.addData("Elev", "lim=%s, tgt=%.0f, pos=%d, pwr=%.2f", robot.getElevatorLimitString(), elevpid.getTarget(), robot.getElevatorPosition(), robot.getElevatorPower());
+        if(!Constants.Intake.disabled) {
+            telemetry.addData("Intake Direction", robot.getIntakeDirection().toString());
+        } else {
+            telemetry.addData("Intake Direction", "DISABLED");
+        }
+        if(!Constants.Manipulator.tiltController.disabled) {
+            telemetry.addData("Tilt", "lim=%s, tgt=%.0f, pos=%d, pwr=%.2f", robot.getTiltLimitString(), tiltpid.getTarget(), robot.getTiltPosition(), robot.getTiltPower());
+        } else {
+            telemetry.addData("Tilt","%s","DISABLED");
+        }
+        if(!Constants.Manipulator.elevatorController.disabled) {
+            telemetry.addData("Elev", "lim=%s, tgt=%.0f, pos=%d, pwr=%.2f", robot.getElevatorLimitString(), elevpid.getTarget(), robot.getElevatorPosition(), robot.getElevatorPower());
+        } else {
+            telemetry.addData("Elev","%s","DISABLED");
+        }
         if(idle) { //items that are only in idle
             robot.noop();
         } else {
