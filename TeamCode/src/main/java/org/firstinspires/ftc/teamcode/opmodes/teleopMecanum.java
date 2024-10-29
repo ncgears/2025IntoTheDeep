@@ -124,6 +124,7 @@ public class teleopMecanum extends OpMode {
         // always listen for gyro reset button
         if(robot.driverOp.getButton(GamepadKeys.Button.BACK) && runtime.seconds() - m_last_command_time > 0.5) {
             robot.imu.resetYaw();
+            robot.setYawOffset(0.0);
             robot.playAudio("Reset Gyro", 500);
             telemCommand("RESET GYRO");
         }
@@ -198,6 +199,7 @@ public class teleopMecanum extends OpMode {
         // always listen for gyro reset button
         if (robot.driverOp.getButton(GamepadKeys.Button.BACK)) {
             robot.imu.resetYaw();
+            robot.setYawOffset(0.0);
             robot.playAudio("Reset Gyro", 500);
             telemCommand("RESET GYRO");
         } else if (robot.driverOp.getButton(GamepadKeys.Button.START)) {

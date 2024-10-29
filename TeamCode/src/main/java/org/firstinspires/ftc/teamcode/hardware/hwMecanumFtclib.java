@@ -78,6 +78,7 @@ public class hwMecanumFtclib {
     public CRServo m_intakeservo = null;
 
     public IMU imu = null;
+    public double yawOffset = 0; //for starting in other positions
 
     // Alliance Flag related stuff
     public DigitalChannel m_flag_a, m_flag_b = null;
@@ -228,6 +229,7 @@ public class hwMecanumFtclib {
                 RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
                 RevHubOrientationOnRobot.UsbFacingDirection.FORWARD));
         imu.initialize(imuParams);
+        yawOffset = Constants.Drivetrain.defaultYawOffset;
 
         myOpMode.telemetry.addData("Robot", "Hardware Initialized");
         myOpMode.telemetry.update();
@@ -283,10 +285,16 @@ public class hwMecanumFtclib {
 
     public double getRobotYaw() {
         try {
-            return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+            return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES) + getYawOffset();
         } catch(Exception e) {
             return 0.0;
         }
+    }
+    public double getYawOffset() {
+        return yawOffset;
+    }
+    public void setYawOffset(double offset) {
+        yawOffset = offset;
     }
 
     public Alliance determineAlliance() {
