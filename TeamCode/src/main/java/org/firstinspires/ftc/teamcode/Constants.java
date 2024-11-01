@@ -11,7 +11,7 @@ public class Constants {
     public static class Auton {
         public static double autonDriveSpeed = 0.5;
         public static double autonStrafeSpeed = 0.6;
-        public static boolean autonDriveStraight = true;
+        public static boolean autonDriveStraight = false;
     }
     public static class Drivetrain {
         public static double defaultYawOffset = -180.0; //change default yaw offset for gyro

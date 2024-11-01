@@ -103,7 +103,7 @@ autonBackwardSample extends OpMode {
                     .onExit( () -> {
                         pid_driving = false;
                     })
-                    .transition( () -> (elapsed.seconds() >= 1.0 && pid_driving && drivepid.atTarget()) )
+                    .transition( () -> (elapsed.seconds() >= 0.7) ) // && pid_driving && drivepid.atTarget()) )
                 /* Outtake the sample */
                 .state(States.MANIP_OUTTAKE)
                     .onEnter( () -> {

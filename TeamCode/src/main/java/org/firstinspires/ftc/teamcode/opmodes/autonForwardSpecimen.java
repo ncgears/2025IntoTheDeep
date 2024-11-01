@@ -96,13 +96,13 @@ autonForwardSpecimen extends OpMode {
                 .state(States.DRIVE_SPECIMEN_HIGH)
                     .onEnter( () -> {
                         elapsed.reset();
-                        double distance = 24;
+                        double distance = 20;
                         driveInchesPID(distance);
                     })
                     .onExit( () -> {
                         pid_driving = false;
                     })
-                    .transition( () -> (elapsed.seconds() >= 1.0 && pid_driving && drivepid.atTarget()) )
+                    .transition( () -> (elapsed.seconds() >= 1.5) ) //&& pid_driving && drivepid.atTarget()) )
                 /* Move manipulator to transport position */
 //                .state(States.MANIP_TRANSPORT2)
 //                    .onEnter( () -> {
