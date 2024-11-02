@@ -95,7 +95,7 @@ public class Constants {
             CLIMB_READY(2890,3600,-1.0), //2820,6660
             CLIMB_UP(4400,3600,-1.0), //2820,4800
             CLIMB_LIFT(4400,640,-1.0), //3360,1287
-            LIMIT(7904,4056,-1.0); //3800,8450
+            LIMIT(1600,4275,-1.0); //3800,8450
             final double tilt, elevator, distance;
             Positions(double tilt, double elevator, double distance) {
                 this.tilt = tilt;

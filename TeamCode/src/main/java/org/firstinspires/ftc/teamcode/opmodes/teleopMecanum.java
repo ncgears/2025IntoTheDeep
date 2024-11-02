@@ -505,6 +505,8 @@ public class teleopMecanum extends OpMode {
             elevpid.setTargetPosition(robot.getManipulatorPosition());
             double power = elevpid.update(robot.getElevatorPosition());
             robot.m_elev_atTarget = elevpid.atTarget();
+            if(robot.getTiltPosition()<=Constants.Manipulator.Positions.LIMIT.getTilt() &&
+                robot.getElevatorPosition()>=Constants.Manipulator.Positions.LIMIT.getElevator()) power = 0;
             robot.setElevatorPower(power);
         }
     }
