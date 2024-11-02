@@ -81,12 +81,12 @@ public class StateMachines {
                     robot.setManipulatorPosition(Constants.Manipulator.Positions.CLIMB_EXTEND);
                 })
                 .transition( () -> elapsed.seconds() >= 1.0 && robot.getManipulatorAtTarget())
-            .state(Climb.READY)
-                .onEnter( () -> {
-                    elapsed.reset();
-                    robot.setManipulatorPosition(Constants.Manipulator.Positions.CLIMB_READY);
-                })
-                .transition( () -> elapsed.seconds() >= 1.0 && robot.getManipulatorAtTarget())
+//            .state(Climb.READY)
+//                .onEnter( () -> {
+//                    elapsed.reset();
+//                    robot.setManipulatorPosition(Constants.Manipulator.Positions.CLIMB_READY);
+//                })
+//                .transition( () -> elapsed.seconds() >= 1.0 && robot.getManipulatorAtTarget())
             .state(Climb.HOOK)
                 .onEnter( () -> {
                     elapsed.reset();
