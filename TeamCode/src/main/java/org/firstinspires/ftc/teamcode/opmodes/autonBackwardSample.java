@@ -92,7 +92,8 @@ autonBackwardSample extends OpMode {
                         elapsed.reset();
                         robot.setManipulatorPosition(Constants.Manipulator.Positions.SAMPLE_HIGH);
                     })
-                    .transition(() -> (elapsed.seconds() >= 1.0 && robot.getManipulatorAtTarget()))
+                    .transition(() -> (elapsed.seconds() >= 1.0 && robot.getManipulatorAtTarget()) )
+                    .transitionTimed(5.0) //Just go anyway after a bit
                 /* Drive to the high specimen bar */
                 .state(States.DRIVE_SAMPLE_HIGH)
                     .onEnter( () -> {
