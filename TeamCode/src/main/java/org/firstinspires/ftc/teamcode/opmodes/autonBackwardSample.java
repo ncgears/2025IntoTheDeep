@@ -77,7 +77,7 @@ autonBackwardSample extends OpMode {
                 /* Setup the starting position of the robot */
                 .state(States.INIT_GYRO)
                     .onEnter( () -> {
-                        robot.setYawOffset(0.0); //start pointed away from drivers
+                        robot.setYawOffset(-180.0); //start toward drivers
                     })
                     .transition( () -> (true))
                 /* Move manipulator to transport position */
