@@ -76,7 +76,7 @@ autonForwardSpecimen extends OpMode {
                 /* Setup the starting position of the robot */
                 .state(States.INIT_GYRO)
                     .onEnter( () -> {
-                        robot.setYawOffset(0.0); //start pointed away from drivers
+                        robot.setYawOffset(0.0); //start back of robot toward drivers (+0)
                     })
                     .transition( () -> (true))
                 /* Move manipulator to transport position */
