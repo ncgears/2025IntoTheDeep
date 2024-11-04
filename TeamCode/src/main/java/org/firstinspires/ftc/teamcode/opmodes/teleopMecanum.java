@@ -12,6 +12,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.sfdev.assembly.state.StateMachine;
 import com.sfdev.assembly.state.StateMachineBuilder;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.hardware.hwMecanumFtclib;
 import org.firstinspires.ftc.teamcode.pidcontrollers.pidTurnControllerFtclib;
@@ -517,7 +520,14 @@ public class teleopMecanum extends OpMode {
         telemetry.addData("Last Command", m_last_command);
         telemetry.addData("Robot Drive", "%s Centric", (robot.fieldCentric) ? "Field" : "Robot");
         telemetry.addData("Heading Lock", (robot.driveStraight) ? "YES" : "NO");
-        telemetry.addData("Robot Heading", "%.2f", robot.getRobotYaw());
+        if(Constants.Odometry.usePinpoint) {
+            Pose2D pos = robot.getRobotPosition();
+            telemetry.addData("Pos", "X=%.3f, Y=%.3f, H=%.3f", pos.getX(DistanceUnit.INCH), pos.getY(DistanceUnit.INCH), pos.getHeading(AngleUnit.DEGREES));
+            Pose2D vel = robot.getRobotVelocity();
+            telemetry.addData("Vel", "X=%.3f, Y=%.3f, H=%.3f", vel.getX(DistanceUnit.INCH), vel.getY(DistanceUnit.INCH), vel.getHeading(AngleUnit.DEGREES));
+        } else {
+            telemetry.addData("Robot Heading", "%.2f", robot.getRobotYaw());
+        }
         telemetry.addData("Obstacle Distance", "%.2f Inches", robot.getDistance());
         telemetry.addData("Robot State", globalMachine.getState().toString());
         telemetry.addData("Specimen Pickup State", specimenMachine.getState().toString());

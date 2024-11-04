@@ -13,6 +13,18 @@ public class Constants {
         public static double autonStrafeSpeed = 0.6;
         public static boolean autonDriveStraight = false;
     }
+    /*
+        This class handles the set information for the goBILDA pinpoint odometry computer and odometry pods.
+        The X pod tracks forward and backward movement.
+        The Y pod tracks side-to-side movement (strafing).
+        The tracking point normally is the center of the robot, but does not NEED to be.
+        See: https://www.gobilda.com/content/user_manuals/3110-0002-0001%20User%20Guide.pdf
+     */
+    public static class Odometry {
+        public static boolean usePinpoint = true; //if true, use the pinpoint odometry computer, false to use imu
+        public static double xPodOffsetmm = 0.0; //distance (in mm) sideways from the tracking point (left+, right-)
+        public static double yPodOffsetmm = 0.0; //distance (in mm) forward from the tracking point (forward+, backward-)
+    }
     public static class Drivetrain {
         public static double defaultYawOffset = 0.0; //change default yaw offset for gyro
         public static boolean useFieldCentric = true; //try to use FC if gyro has value

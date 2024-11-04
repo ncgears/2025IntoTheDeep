@@ -44,6 +44,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Constants;
 
 /*
@@ -77,6 +78,7 @@ public class hwMecanumFtclib {
 //    public ServoEx m_intakeservo = null;
     public CRServo m_intakeservo = null;
 
+    public GoBildaPinpointDriver odo = null;
     public IMU imu = null;
     public double yawOffset = 0; //for starting in other positions
 
@@ -147,6 +149,19 @@ public class hwMecanumFtclib {
         // Gamepads
         driverOp = new GamepadEx(myOpMode.gamepad1);
         operOp = new GamepadEx(myOpMode.gamepad2);
+
+        try {
+            if(Constants.Odometry.usePinpoint) {
+                //GoBilda Pinpoint Odometry Computer
+                odo = hwMap.get(GoBildaPinpointDriver.class, "odo");
+                odo.setOffsets(Constants.Odometry.xPodOffsetmm, Constants.Odometry.yPodOffsetmm);
+                odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
+                odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
+                odo.resetPosAndIMU();
+            }
+        } catch(Exception e) {
+            myOpMode.telemetry.addLine("ERROR: Could not init odometry!");
+        }
 
         try {
             // Alliance Flag switches
@@ -283,9 +298,36 @@ public class hwMecanumFtclib {
         return avg;
     }
 
+    public Pose2D getRobotPosition() {
+        try {
+            if(Constants.Odometry.usePinpoint) {
+                return odo.getPosition();
+            } else {
+                return new Pose2D(DistanceUnit.INCH, 0,0, AngleUnit.DEGREES, imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+            }
+        } catch(Exception e) {
+            return new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
+        }
+    }
+    public Pose2D getRobotVelocity() {
+        try {
+            if(Constants.Odometry.usePinpoint) {
+                return odo.getVelocity();
+            } else {
+                return new Pose2D(DistanceUnit.INCH, 0,0, AngleUnit.DEGREES, 0);
+            }
+        } catch(Exception e) {
+            return new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
+        }
+    }
     public double getRobotYaw() {
         try {
-            return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES) + getYawOffset();
+            if(Constants.Odometry.usePinpoint) {
+                Pose2D pos = odo.getPosition();
+                return pos.getHeading(AngleUnit.DEGREES) + getYawOffset();
+            } else {
+                return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES) + getYawOffset();
+            }
         } catch(Exception e) {
             return 0.0;
         }
@@ -295,6 +337,20 @@ public class hwMecanumFtclib {
     }
     public void setYawOffset(double offset) {
         yawOffset = offset;
+    }
+    public void resetPosAndIMU() {
+        if(Constants.Odometry.usePinpoint) {
+            odo.resetPosAndIMU();
+        } else {
+            imu.resetYaw();
+        }
+    }
+    public void resetIMU() {
+        if(Constants.Odometry.usePinpoint) {
+            odo.recalibrateIMU();
+        } else {
+            imu.resetYaw();
+        }
     }
 
     public Alliance determineAlliance() {
