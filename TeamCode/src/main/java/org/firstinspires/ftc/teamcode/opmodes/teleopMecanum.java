@@ -53,7 +53,7 @@ public class teleopMecanum extends OpMode {
     boolean tilt_low_limit, tilt_high_limit = false;
 
     boolean d_a, d_b, d_x, d_y, d_lb, d_lt = false; //for debouncing driver button presses
-    boolean o_rb, o_lb, o_up, o_dn, o_lt, o_rt, o_tl, o_tr = false; //for debouncing operator button presses
+    boolean o_rb, o_lb, o_up, o_dn, o_lt, o_rt, o_tl, o_tr, o_x = false; //for debouncing operator button presses
 
     public enum States {
         INIT,
@@ -158,7 +158,7 @@ public class teleopMecanum extends OpMode {
          */
         drive_fwd = distanceCorrectedPower(stickDeadband(robot.driverOp.getLeftY()));
         drive_strafe = distanceCorrectedPower(stickDeadband(robot.driverOp.getLeftX()));
-        drive_turn = stickDeadband(robot.driverOp.getRightX());
+        drive_turn = stickDeadband(robot.driverOp.getRightX() * Constants.Global.stickTurnMultiplier);
         if (drive_turn != 0.0) { //we have requested a turn using the joystick
             pid_turning = false; //disable pid turning
             ds_locked = false; //unlock drivestraight heading
@@ -334,9 +334,10 @@ public class teleopMecanum extends OpMode {
         } else if (robot.operOp.getButton(GamepadKeys.Button.Y)) { //specimen high
             robot.setManipulatorPosition(Constants.Manipulator.Positions.SPECIMEN_HIGH);
             telemCommand("SPECIMEN HIGH");
-        } else if (robot.operOp.getButton(GamepadKeys.Button.X)) { //transport
-            robot.setManipulatorPosition(Constants.Manipulator.Positions.TRANSPORT);
-            telemCommand("TRANSPORT POSITION");
+        } else if (!o_x && robot.operOp.getButton(GamepadKeys.Button.X)) { //transport
+            o_x = true;
+            robot.setManipulatorPosition(Constants.Manipulator.Positions.SPECIMEN_GRAB);
+            telemCommand("SPECIMEN GRAB");
         } else if (robot.operOp.getButton(GamepadKeys.Button.A)) { //sample pickup
             robot.setManipulatorPosition(Constants.Manipulator.Positions.SAMPLE_PICKUP);
             telemCommand("SAMPLE PICKUP");
@@ -350,6 +351,10 @@ public class teleopMecanum extends OpMode {
             o_rb = false;
         } else if (o_lb && !robot.operOp.getButton(GamepadKeys.Button.LEFT_BUMPER)) { //released the button
             o_lb = false;
+        } else if (o_x && !robot.operOp.getButton(GamepadKeys.Button.X)) { //released the button
+            o_x = false;
+            robot.setManipulatorPosition(Constants.Manipulator.Positions.TRANSPORT);
+            telemCommand("TRANSPORT");
         }
 
         /* DPAD_UP and DPAD_DOWN handles running the intake */

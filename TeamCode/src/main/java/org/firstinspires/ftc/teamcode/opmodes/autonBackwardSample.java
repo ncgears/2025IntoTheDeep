@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.sfdev.assembly.state.StateMachine;
@@ -16,7 +17,7 @@ import org.firstinspires.ftc.teamcode.pidcontrollers.pidTurnControllerFtclib;
 
 @SuppressWarnings({"unused"})
 @Autonomous(name="Sample Backward Auton", group="JRB")
-//@Disabled
+@Disabled
 public class
 autonBackwardSample extends OpMode {
     boolean m_long_auton = false; //set true if this is the long auton

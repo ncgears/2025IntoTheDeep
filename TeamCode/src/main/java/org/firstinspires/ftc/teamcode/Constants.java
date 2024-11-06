@@ -7,6 +7,7 @@ public class Constants {
     public static class Global {
         public static double stickDeadbandMin = 0.1; //10%, anything less than this is considered to be 0%
         public static double stickDeadbandMax = 0.95; //95%, anything over this is considered to be 100%
+        public static double stickTurnMultiplier = 0.85; //85%, reduce turning power
     }
     public static class Auton {
         public static double autonDriveSpeed = 0.5;
@@ -96,13 +97,14 @@ public class Constants {
             ZERO(0,0,-1.0),
             MANUAL(0,0,-1),
             START(0,0,-1.0),
-            TRANSPORT(1200,625,-1.0), //650,1280
-            SPECIMEN_LOW(1352,615,-1.0), //650,1280
-            SPECIMEN_HIGH(3190,2560,-1.0), //1990,3860
-            SPECIMEN_PICKUP(416,96,-1.0), //200,200
+            TRANSPORT(1200,645,-1.0), //650,1280
+            SPECIMEN_LOW(1352,625,-1.0), //650,1280
+            SPECIMEN_HIGH(3000,2720,-1.0), //1990,3860
+            SPECIMEN_PICKUP(300,96,-1.0), //200,200
+            SPECIMEN_GRAB(300,645,-1.0),
             SAMPLE_LOW(5700,2200,-1.0), //650,3400
             SAMPLE_HIGH(7200,4590,-1.0), //3750,8300
-            SAMPLE_PICKUP(0,615,-1.0), //0,1280
+            SAMPLE_PICKUP(0,645,-1.0), //0,1280
             CLIMB_EXTEND(2890,4118,-1.0), //2400,6660
             CLIMB_READY(4400,3600,-1.0), //2820,6660
             CLIMB_UP(4400,3600,-1.0), //2820,4800
