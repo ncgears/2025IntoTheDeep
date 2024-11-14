@@ -236,8 +236,14 @@ autonLeftSample extends OpMode {
 
     public void driveInchesPID(double targetInches) {
         pid_driving = true;
-        robot.resetAllDriveEncoder();
-        pid_drive_target = targetInches * Constants.Drivetrain.driveController.ticksPerInch + robot.getDriveAvgPosition();
+        if(Constants.Odometry.usePinpoint) {
+            //TODO: Rework this to use pinpoint
+            robot.resetAllDriveEncoder();
+            pid_drive_target = targetInches * Constants.Drivetrain.driveController.ticksPerInch + robot.getDriveAvgPosition();
+        } else {
+            robot.resetAllDriveEncoder();
+            pid_drive_target = targetInches * Constants.Drivetrain.driveController.ticksPerInch + robot.getDriveAvgPosition();
+        }
     }
 
     public void moveTilt() {
