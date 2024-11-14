@@ -22,7 +22,7 @@ public class Constants {
         See: https://www.gobilda.com/content/user_manuals/3110-0002-0001%20User%20Guide.pdf
      */
     public static class Odometry {
-        public static boolean usePinpoint = true; //if true, use the pinpoint odometry computer, false to use imu
+        public static boolean usePinpoint = false; //if true, use the pinpoint odometry computer, false to use imu
         public static double xPodOffsetmm = 0.0; //distance (in mm) sideways from the tracking point (left+, right-)
         public static double yPodOffsetmm = 0.0; //distance (in mm) forward from the tracking point (forward+, backward-)
     }
