@@ -101,10 +101,10 @@ public class Constants {
             SPECIMEN_LOW(1352,625,-1.0), //650,1280
             SPECIMEN_HIGH(3000,2720,-1.0), //1990,3860
             SPECIMEN_PICKUP(300,96,-1.0), //200,200
-            SPECIMEN_GRAB(300,645, -1.0),
+            SPECIMEN_GRAB(300,700, -1.0),
             SAMPLE_LOW(5700,2200,-1.0), //650,3400
             SAMPLE_HIGH(7200,4590,-1.0), //3750,8300
-            SAMPLE_PICKUP(0,645,-1.0), //0,1280
+            SAMPLE_PICKUP(0,920,-1.0), //0,1280
             CLIMB_EXTEND(2890,4118,-1.0), //2400,6660
             CLIMB_READY(4400,3600,-1.0), //2820,6660
             CLIMB_UP(4400,3600,-1.0), //2820,4800
